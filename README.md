@@ -4,7 +4,7 @@ Interaktive Web-App zur Darstellung eines Mollier h,x-Diagramms für feuchte Luf
 
 ![Screenshot](docs/screenshot.png)
 
-[Demo Web-App](https://raffa3l.github.io/Winterstromluecke-2050)
+[Demo Web-App](https://raffa3l.github.io/hx-diagramm/)
 
 ## Features
 
