@@ -85,7 +85,7 @@ Punkte können per Drag & Drop verschoben werden. Zwischen aufeinanderfolgenden 
 
 ## Inspiration
 
-- Visuelles Layout orientiert sich am h,x-Diagramm der [Seven-Air Gebr. Meyer AG](https://www.seven-air.com)
+- Visuelles Layout orientiert sich am h,x-Diagramm der [Seven-Air Gebr. Meyer AG](https://www.seven-air.ch/resources/h-x-Diagramm-540.pdf)
 - Psychrometrische Referenz: [d3-mollierhx](https://github.com/hslu-ige-laes/d3-mollierhx) (HSLU)
 
 ## Lizenz
