@@ -1,5 +1,8 @@
 # h,x-Diagramm für feuchte Luft
 
+[![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-blue.svg)](LICENSE)
+[![GitHub Pages](https://img.shields.io/badge/Demo-GitHub%20Pages-orange.svg)](https://raffa3l.github.io/hx-diagramm/)
+
 Interaktive Web-App zur Darstellung eines Mollier h,x-Diagramms für feuchte Luft. Läuft vollständig im Browser – kein Backend erforderlich.
 
 ![Screenshot](docs/screenshot.png)
