@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>h,x-Diagramm für feuchte Luft</title>
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar">
+      <h1>h,x-Diagramm</h1>
+      <p class="subtitle">Mollier-Diagramm für feuchte Luft</p>
+
+      <section class="panel">
+        <h2>Konfiguration</h2>
+        <div class="form-group">
+          <label for="altitude">Höhe ü. M. (m)</label>
+          <input type="number" id="altitude" value="500" min="0" max="4000" step="50">
+          <span class="hint" id="pressure-display">≈ 955 mbar</span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="t-min">T min (°C)</label>
+            <input type="number" id="t-min" value="-10" min="-40" max="0" step="5">
+          </div>
+          <div class="form-group">
+            <label for="t-max">T max (°C)</label>
+            <input type="number" id="t-max" value="50" min="20" max="80" step="5">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="x-max">x max (g/kg)</label>
+          <input type="number" id="x-max" value="30" min="10" max="50" step="5">
+        </div>
+        <button id="btn-update-config" class="btn btn-primary">Diagramm aktualisieren</button>
+      </section>
+
+      <section class="panel">
+        <h2>Zustandspunkt hinzufügen</h2>
+        <div class="form-group">
+          <label for="input-t">Temperatur T (°C)</label>
+          <input type="number" id="input-t" value="20" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="input-mode">Eingabe über</label>
+          <select id="input-mode">
+            <option value="phi">Relative Feuchte φ (%)</option>
+            <option value="x">Absolute Feuchte x (g/kg)</option>
+          </select>
+        </div>
+        <div class="form-group" id="phi-input-group">
+          <label for="input-phi">Relative Feuchte φ (%)</label>
+          <input type="number" id="input-phi" value="50" min="0" max="100" step="1">
+        </div>
+        <div class="form-group hidden" id="x-input-group">
+          <label for="input-x">Absolute Feuchte x (g/kg)</label>
+          <input type="number" id="input-x" value="7" min="0" step="0.1">
+        </div>
+        <button id="btn-add-point" class="btn btn-primary">Punkt hinzufügen</button>
+      </section>
+
+      <section class="panel">
+        <h2>Zustandspunkte</h2>
+        <div id="points-list"></div>
+        <button id="btn-clear-points" class="btn btn-danger">Alle löschen</button>
+      </section>
+    </aside>
+    <main id="diagram-container"></main>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
