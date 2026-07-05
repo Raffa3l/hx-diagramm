@@ -1,4 +1,10 @@
-import { pressureFromAltitude, stateFromTPhi, stateFromTX, humidityRatio } from './psychrometrics.js';
+import { pressureFromAltitude, humidityRatio } from './psychrometrics.js';
+
+// Zahl aus Eingabefeld lesen; Fallback nur bei ungültiger Eingabe (0 ist gültig)
+function readNumber(input, fallback) {
+  const value = parseFloat(input.value);
+  return Number.isFinite(value) ? value : fallback;
+}
 
 export function setupUI(diagram) {
   const altitudeInput = document.getElementById('altitude');
@@ -20,19 +26,22 @@ export function setupUI(diagram) {
   const btnClearPoints = document.getElementById('btn-clear-points');
 
   function updatePressureDisplay() {
-    const alt = parseFloat(altitudeInput.value) || 0;
+    const alt = readNumber(altitudeInput, 500);
     const p = pressureFromAltitude(alt);
     pressureDisplay.textContent = `≈ ${(p / 100).toFixed(0)} mbar`;
   }
 
   function getConfig() {
-    const altitude = parseFloat(altitudeInput.value) || 500;
+    const altitude = readNumber(altitudeInput, 500);
+    const tMin = readNumber(tMinInput, -10);
+    let tMax = readNumber(tMaxInput, 50);
+    if (tMax <= tMin) tMax = tMin + 10;
     return {
       altitude,
       pressure: pressureFromAltitude(altitude),
-      tMin: parseFloat(tMinInput.value) || -10,
-      tMax: parseFloat(tMaxInput.value) || 50,
-      xMax: parseFloat(xMaxInput.value) || 30,
+      tMin,
+      tMax,
+      xMax: Math.max(1, readNumber(xMaxInput, 30)),
     };
   }
 
@@ -64,6 +73,7 @@ export function setupUI(diagram) {
       const phi = parseFloat(inputPhi.value) / 100;
       if (isNaN(phi) || phi < 0 || phi > 1) return;
       x_gkg = humidityRatio(T, phi, config.pressure) * 1000;
+      if (!Number.isFinite(x_gkg)) return;
     } else {
       x_gkg = parseFloat(inputX.value);
       if (isNaN(x_gkg) || x_gkg < 0) return;

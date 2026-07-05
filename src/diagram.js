@@ -69,6 +69,10 @@ export class HXDiagram {
 
   update(config) {
     this.config = { ...config };
+    // Abgeleitete Grössen (φ, h, Taupunkt, …) hängen vom Druck ab
+    this.statePoints.forEach(p => {
+      Object.assign(p, psy.stateFromTX(p.T, p.x, this.config.pressure));
+    });
     this.createScales();
     this.render();
     this.renderStatePoints();
@@ -134,7 +138,7 @@ export class HXDiagram {
   }
 
   drawEnthalpyLines() {
-    const { tMin, tMax, xMax, pressure } = this.config;
+    const { tMin, tMax, xMax } = this.config;
 
     const hMin = psy.enthalpy(tMin, 0);
     const hMax = psy.enthalpy(tMax, xMax / 1000);
@@ -249,54 +253,44 @@ export class HXDiagram {
   drawSaturationCurve() {
     const { tMin, tMax, xMax, pressure } = this.config;
     const points = [];
+    let prev = null;
 
+    // x steigt monoton mit T – am rechten Rand Schnittpunkt interpolieren und abbrechen
     for (let T = tMin; T <= tMax; T += 0.25) {
-      const x_kgkg = psy.humidityRatio(T, 1.0, pressure);
-      const x_gkg = x_kgkg * 1000;
-      if (x_gkg <= xMax * 1.5) {
-        points.push([Math.min(x_gkg, xMax), T]);
+      const x_gkg = psy.humidityRatio(T, 1.0, pressure) * 1000;
+      if (x_gkg > xMax) {
+        if (prev) {
+          const t = (xMax - prev[0]) / (x_gkg - prev[0]);
+          points.push([xMax, prev[1] + t * (T - prev[1])]);
+        }
+        break;
       }
+      prev = [x_gkg, T];
+      points.push(prev);
     }
+    if (points.length < 2) return;
 
     const line = d3.line()
       .x(d => this.xScale(d[0]))
       .y(d => this.yScale(d[1]))
       .curve(d3.curveCatmullRom.alpha(0.5));
 
-    // Nebelgebiet schattieren
-    const fogPoints = points.filter(p => p[0] <= xMax);
-    if (fogPoints.length > 0) {
-      const areaPoints = [
-        ...fogPoints,
-        [xMax, fogPoints[fogPoints.length - 1][1]],
-        [xMax, tMin],
-        ...fogPoints.filter(p => p[1] <= fogPoints[0][1]).reverse().slice(0, 1),
-      ];
+    // Nebelgebiet schattieren (unterhalb der Sättigungslinie: x > x_s(T))
+    const areaGen = d3.area()
+      .x(d => this.xScale(d[0]))
+      .y0(this.yScale(tMin))
+      .y1(d => this.yScale(d[1]))
+      .curve(d3.curveCatmullRom.alpha(0.5));
 
-      const lastVisiblePt = fogPoints[fogPoints.length - 1];
-      const fogArea = [
-        ...fogPoints,
-        [xMax, lastVisiblePt[1]],
-        [xMax, tMin],
-        [fogPoints[0][0], tMin],
-      ];
-
-      const areaGen = d3.area()
-        .x(d => this.xScale(d[0]))
-        .y0(this.yScale(tMin))
-        .y1(d => this.yScale(d[1]))
-        .curve(d3.curveCatmullRom.alpha(0.5));
-
-      this.fogGroup.append('path')
-        .datum(fogPoints)
-        .attr('d', areaGen)
-        .attr('fill', COLORS.saturationFill)
-        .attr('stroke', 'none');
-    }
+    this.fogGroup.append('path')
+      .datum(points)
+      .attr('d', areaGen)
+      .attr('fill', COLORS.saturationFill)
+      .attr('stroke', 'none');
 
     // Sättigungslinie
     this.satGroup.append('path')
-      .datum(points.filter(p => p[0] <= xMax))
+      .datum(points)
       .attr('d', line)
       .attr('fill', 'none')
       .attr('stroke', COLORS.saturation)
@@ -463,6 +457,8 @@ export class HXDiagram {
     // Punkte
     const self = this;
     const drag = d3.drag()
+      // Gestenursprung in Pixelkoordinaten – das Datum selbst (d.x in g/kg) taugt nicht als subject
+      .subject((event, d) => ({ x: self.xScale(d.x), y: self.yScale(d.T) }))
       .on('start', function () {
         d3.select(this).raise().attr('opacity', 0.7);
       })
