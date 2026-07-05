@@ -26,7 +26,8 @@ export class HXDiagram {
 
     this.width = 1200;
     this.height = 820;
-    this.margin = { top: 55, right: 50, bottom: 65, left: 65 };
+    // Ränder gross genug für Beschriftungen ausserhalb des Rahmens (wie Seven-Air-Vorlage)
+    this.margin = { top: 62, right: 70, bottom: 65, left: 92 };
 
     this.initSVG();
     this.update(config);
@@ -182,15 +183,23 @@ export class HXDiagram {
     const first = points[0];
     const second = points[1];
 
-    let labelX, labelY;
-    if (first[1] >= tMax - 0.5) {
-      labelX = this.xScale(first[0]);
-      labelY = this.yScale(tMax) - 4;
-    } else {
-      labelX = this.xScale(0) - 4;
-      labelY = this.yScale(first[1]);
+    if (first[0] < 0.25) {
+      // Linie tritt links ein – Beschriftung ausserhalb, links der Achsen-Ticks
+      this.labelGroup.append('text')
+        .attr('x', this.xScale(0) - 32)
+        .attr('y', this.yScale(psy.temperatureFromEnthalpy(h, 0)))
+        .attr('text-anchor', 'end')
+        .attr('dominant-baseline', 'middle')
+        .attr('font-size', '8px')
+        .attr('fill', COLORS.enthalpyLabel)
+        .text(`${h}`);
+      return;
     }
 
+    // Linie tritt oben ein – Beschriftung ausserhalb über dem Rahmen, entlang der Linie gedreht
+    const xTop = 1000 * (h - 1.006 * tMax) / (2501 + 1.86 * tMax);
+    const labelX = this.xScale(xTop);
+    const labelY = this.yScale(tMax) - 6;
     const dx = this.xScale(second[0]) - this.xScale(first[0]);
     const dy = this.yScale(second[1]) - this.yScale(first[1]);
     const angle = Math.atan2(dy, dx) * 180 / Math.PI;
@@ -233,20 +242,25 @@ export class HXDiagram {
         .attr('stroke-width', 0.7)
         .attr('opacity', 0.7);
 
+      // Beschriftung ausserhalb des Rahmens: über dem oberen bzw. rechts neben dem rechten Rand
       const labelPt = points[points.length - 1];
-      const prevPt = points[points.length - 2];
-      const dx = this.xScale(labelPt[0]) - this.xScale(prevPt[0]);
-      const dy = this.yScale(labelPt[1]) - this.yScale(prevPt[1]);
-      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-
-      this.labelGroup.append('text')
-        .attr('x', this.xScale(labelPt[0]) + 3)
-        .attr('y', this.yScale(labelPt[1]))
+      const label = this.labelGroup.append('text')
         .attr('font-size', '9px')
         .attr('fill', COLORS.phiLabel)
-        .attr('dominant-baseline', 'middle')
-        .attr('transform', `rotate(${angle}, ${this.xScale(labelPt[0]) + 3}, ${this.yScale(labelPt[1])})`)
         .text(`${Math.round(phi * 100)}%`);
+
+      if (labelPt[1] >= tMax - 0.5) {
+        label
+          .attr('x', this.xScale(labelPt[0]))
+          .attr('y', this.yScale(tMax) - 6)
+          .attr('text-anchor', 'middle');
+      } else {
+        label
+          .attr('x', this.xScale(xMax) + 6)
+          .attr('y', this.yScale(labelPt[1]))
+          .attr('text-anchor', 'start')
+          .attr('dominant-baseline', 'middle');
+      }
     }
   }
 
@@ -276,6 +290,13 @@ export class HXDiagram {
       .curve(d3.curveCatmullRom.alpha(0.5));
 
     // Nebelgebiet schattieren (unterhalb der Sättigungslinie: x > x_s(T))
+    // Tritt die Linie oben aus, ist auch der Streifen rechts davon Nebelgebiet
+    const fogPoints = [...points];
+    const last = points[points.length - 1];
+    if (last[1] >= tMax - 0.5 && last[0] < xMax) {
+      fogPoints.push([xMax, tMax]);
+    }
+
     const areaGen = d3.area()
       .x(d => this.xScale(d[0]))
       .y0(this.yScale(tMin))
@@ -283,7 +304,7 @@ export class HXDiagram {
       .curve(d3.curveCatmullRom.alpha(0.5));
 
     this.fogGroup.append('path')
-      .datum(points)
+      .datum(fogPoints)
       .attr('d', areaGen)
       .attr('fill', COLORS.saturationFill)
       .attr('stroke', 'none');
@@ -296,19 +317,24 @@ export class HXDiagram {
       .attr('stroke', COLORS.saturation)
       .attr('stroke-width', 2);
 
-    // Beschriftung
-    const midIdx = Math.floor(points.length * 0.6);
-    if (midIdx < points.length) {
-      const pt = points[midIdx];
-      if (pt[0] <= xMax) {
-        this.labelGroup.append('text')
-          .attr('x', this.xScale(pt[0]) + 8)
-          .attr('y', this.yScale(pt[1]) - 8)
-          .attr('font-size', '10px')
-          .attr('font-weight', '600')
-          .attr('fill', COLORS.saturation)
-          .text('φ = 100 %');
-      }
+    // Beschriftung ausserhalb des Rahmens am Linienende
+    const satLabel = this.labelGroup.append('text')
+      .attr('font-size', '10px')
+      .attr('font-weight', '600')
+      .attr('fill', COLORS.saturation)
+      .text('φ = 100 %');
+
+    if (last[1] >= tMax - 0.5) {
+      satLabel
+        .attr('x', this.xScale(last[0]))
+        .attr('y', this.yScale(tMax) - 6)
+        .attr('text-anchor', 'middle');
+    } else {
+      satLabel
+        .attr('x', this.xScale(xMax) + 6)
+        .attr('y', this.yScale(last[1]))
+        .attr('text-anchor', 'start')
+        .attr('dominant-baseline', 'middle');
     }
   }
 
@@ -354,12 +380,21 @@ export class HXDiagram {
 
     this.axesGroup.append('text')
       .attr('x', -(plotTop + plotBottom) / 2)
-      .attr('y', plotLeft - 45)
+      .attr('y', plotLeft - 66)
       .attr('text-anchor', 'middle')
       .attr('font-size', '12px')
       .attr('fill', COLORS.axisLabel)
       .attr('transform', 'rotate(-90)')
       .text('Temperatur T in °C');
+
+    // Einheit der Enthalpie-Spalte links ausserhalb
+    this.axesGroup.append('text')
+      .attr('x', plotLeft - 32)
+      .attr('y', plotTop - 8)
+      .attr('text-anchor', 'end')
+      .attr('font-size', '8px')
+      .attr('fill', COLORS.enthalpyLabel)
+      .text('h in kJ/kg');
 
     // Rahmen
     this.axesGroup.append('rect')

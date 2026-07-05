@@ -5,6 +5,19 @@ Alle nennenswerten Änderungen an diesem Projekt werden in dieser Datei dokument
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/),
 die Versionierung folgt [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.0.2] – 2026-07-05
+
+### Geändert
+- **Beschriftungen ausserhalb des Diagramms** (wie Seven-Air-Vorlage): Enthalpie-Werte
+  in eigener Spalte links der Temperaturachse (mit Überschrift „h in kJ/kg") bzw.
+  rotiert über dem oberen Rand; φ-Werte rechts neben bzw. über dem Rahmen;
+  „φ = 100 %" am Austrittspunkt der Sättigungslinie ausserhalb des Rahmens.
+- Diagrammränder vergrössert, um Platz für die aussenliegenden Beschriftungen zu schaffen.
+
+### Behoben
+- Nebelgebiet-Schattierung reicht jetzt bis zum rechten Rand, wenn die
+  Sättigungslinie oben austritt (der Streifen rechts davon ist ebenfalls Nebelgebiet).
+
 ## [1.0.1] – 2026-07-05
 
 ### Behoben
