@@ -26,12 +26,15 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   height: 100vh;
+  /* iOS Safari: dynamische Adressleiste berücksichtigen */
+  height: 100dvh;
   overflow: hidden;
 }
 
 #app {
   display: flex;
   height: 100vh;
+  height: 100dvh;
 }
 
 #sidebar {
@@ -278,4 +281,81 @@ body {
   white-space: nowrap;
   z-index: 100;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+#app-footer {
+  /* im Flex-Layout der Sidebar ans untere Ende schieben */
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+#app-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+#app-footer a:hover {
+  color: var(--color-primary);
+}
+
+#app-footer svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Zustandspunkte: beim Touch-Drag darf die Seite nicht scrollen */
+#diagram-container .state-point {
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Responsive: unterhalb 900 px (iPhone, iPad hochkant) gestapeltes,
+   scrollbares Layout mit dem Diagramm zuoberst */
+@media (max-width: 900px) {
+  body,
+  #app {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  #app {
+    flex-direction: column;
+  }
+
+  #diagram-container {
+    order: 1;
+    width: 100%;
+    padding: 8px;
+  }
+
+  /* Höhe aus dem Seitenverhältnis der viewBox (1200×820) statt aus dem Container */
+  #diagram-container svg {
+    height: auto;
+    aspect-ratio: 1200 / 820;
+  }
+
+  #sidebar {
+    order: 2;
+    width: 100%;
+    min-width: 0;
+    border-right: none;
+    border-top: 1px solid var(--color-border);
+    overflow-y: visible;
+  }
+
+  /* iOS zoomt bei Fokus in Felder mit Schrift < 16 px; das verhindern */
+  .form-group input,
+  .form-group select {
+    font-size: 1rem;
+  }
 }

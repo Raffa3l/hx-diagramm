@@ -5,8 +5,8 @@
 
 // Konstanten (SI)
 const R_DRY = 287.05;  // J/(kg·K)  spezifische Gaskonstante trockene Luft
-const EPS = 0.622;     // –         Verhältnis der Gaskonstanten R_d/R_v (genauer 0.62198)
-const RV_RD = 1.608;   // –         R_v/R_d = 1/EPS
+const EPS = 0.622;     // -         Verhältnis der Gaskonstanten R_d/R_v (genauer 0.62198)
+const RV_RD = 1.608;   // -         R_v/R_d = 1/EPS
 const CP_AIR = 1.006;  // kJ/(kg·K) spezifische Wärmekapazität trockene Luft
 const CP_VAP = 1.86;   // kJ/(kg·K) spezifische Wärmekapazität Wasserdampf
 const CP_WAT = 4.19;   // kJ/(kg·K) spezifische Wärmekapazität flüssiges Wasser

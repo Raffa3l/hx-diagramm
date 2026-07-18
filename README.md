@@ -3,7 +3,7 @@
 [![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-blue.svg)](LICENSE)
 [![GitHub Pages](https://img.shields.io/badge/Demo-GitHub%20Pages-orange.svg)](https://raffa3l.github.io/hx-diagramm/)
 
-Interaktive Web-App zur Darstellung eines Mollier h,x-Diagramms für feuchte Luft. Läuft vollständig im Browser – kein Backend erforderlich.
+Interaktive Web-App zur Darstellung eines Mollier h,x-Diagramms für feuchte Luft. Läuft vollständig im Browser; kein Backend erforderlich.
 
 ![Screenshot](docs/screenshot.png)
 
@@ -11,14 +11,15 @@ Interaktive Web-App zur Darstellung eines Mollier h,x-Diagramms für feuchte Luf
 
 ## Features
 
-- **Psychrometrisch korrekt** – Sättigungsdampfdruck nach Magnus-Formel, Luftdruck nach ICAO-Standardatmosphäre
-- **Konfigurierbar** – Temperaturbereich, Feuchtebereich und Höhe über Meer frei wählbar
-- **Interaktive Zustandspunkte** – Per Klick ins Diagramm setzen, per Drag & Drop verschieben oder numerisch eingeben
-- **Prozesslinien** – Automatische Verbindung zwischen Zustandspunkten
-- **Vollständige Zustandsberechnung** – Temperatur, relative/absolute Feuchte, Enthalpie, Taupunkt und Dichte
-- **Leistungsberechnung** – Massen- oder Volumenstrom eingeben (kg/s, kg/h, m³/s, m³/h); die App berechnet pro Prozessabschnitt Heiz-/Kühlleistung `Q = ṁ·Δh` (kW) und Be-/Entfeuchtungsleistung `ṁ·Δx` (kg/h) samt Gesamtbilanz
-- **Behaglichkeitszonen** – Zuschaltbares Komfort-Overlay („behaglich" / „noch behaglich") nach der HSLU-edar-Referenz, ins h,x-Koordinatensystem transformiert
-- **Design nach Seven-Air-Vorlage** – Monochromes Liniennetz, Helvetica-Beschriftung, alle Linien bis zum Diagrammrand
+- **Psychrometrisch korrekt:** Sättigungsdampfdruck nach Magnus-Formel, Luftdruck nach ICAO-Standardatmosphäre
+- **Konfigurierbar:** Temperaturbereich, Feuchtebereich und Höhe über Meer frei wählbar
+- **Interaktive Zustandspunkte:** Per Klick ins Diagramm setzen, per Drag & Drop verschieben oder numerisch eingeben
+- **Prozesslinien:** Automatische Verbindung zwischen Zustandspunkten
+- **Vollständige Zustandsberechnung:** Temperatur, relative/absolute Feuchte, Enthalpie, Taupunkt und Dichte
+- **Leistungsberechnung:** Massen- oder Volumenstrom eingeben (kg/s, kg/h, m³/s, m³/h); die App berechnet pro Prozessabschnitt Heiz-/Kühlleistung `Q = ṁ·Δh` (kW) und Be-/Entfeuchtungsleistung `ṁ·Δx` (kg/h) samt Gesamtbilanz
+- **Behaglichkeitszonen:** Zuschaltbares Komfort-Overlay („behaglich" / „noch behaglich") nach der HSLU-edar-Referenz, ins h,x-Koordinatensystem transformiert
+- **Design nach Seven-Air-Vorlage:** Monochromes Liniennetz, Helvetica-Beschriftung, alle Linien bis zum Diagrammrand
+- **Responsive:** Auf iPhone/iPad (unterhalb 900 px Breite) gestapeltes, scrollbares Layout mit dem Diagramm zuoberst; Zustandspunkte sind per Touch setz- und verschiebbar
 
 ### Dargestellte Grössen
 
@@ -54,7 +55,7 @@ Der Build wird im Ordner `dist/` abgelegt und kann auf jedem statischen Webserve
 
 | Parameter | Standardwert | Beschreibung |
 |---|---|---|
-| Höhe ü. M. | 500 m | Höhe über Meer – bestimmt den barometrischen Luftdruck nach ICAO-Standardatmosphäre |
+| Höhe ü. M. | 500 m | Höhe über Meer; bestimmt den barometrischen Luftdruck nach ICAO-Standardatmosphäre |
 | T min | −10 °C | Untere Grenze der Temperaturachse |
 | T max | 50 °C | Obere Grenze der Temperaturachse |
 | x max | 30 g/kg | Obere Grenze der absoluten Feuchte |
@@ -65,8 +66,8 @@ Die Höhe über Meer beeinflusst den Luftdruck und damit alle psychrometrischen 
 
 Zustandspunkte können auf zwei Arten erstellt werden:
 
-1. **Klick ins Diagramm** – Punkt wird an der angeklickten Stelle gesetzt
-2. **Numerische Eingabe** – Temperatur + relative Feuchte (φ) oder absolute Feuchte (x) eingeben
+1. **Klick ins Diagramm:** Punkt wird an der angeklickten Stelle gesetzt
+2. **Numerische Eingabe:** Temperatur + relative Feuchte (φ) oder absolute Feuchte (x) eingeben
 
 Jeder Zustandspunkt zeigt:
 - Temperatur T (°C)
@@ -100,7 +101,7 @@ Bei mehr als zwei Punkten wird zusätzlich die Gesamtbilanz über die ganze Proz
 | behaglich | gelbgrün, 40 % Deckkraft | (19/38), (17.5/74), (22.5/65), (24/35) |
 | noch behaglich | orange, 25 % Deckkraft | (20/20), (17/40), (16/75), (17/85), (21.5/80), (25/60), (27/30), (25.5/20) |
 
-Die Polygone stammen aus der [HSLU-edar-Referenz `comfortTempHum.Rmd`](https://github.com/hslu-ige-laes/edar/blob/master/partDataVis/comfortTempHum.Rmd) (dort in einem T/φ-Plot). In dieser App werden die Kanten linear in (T, φ) abgetastet und über die Psychrometrie φ→x ins h,x-Koordinatensystem transformiert – die Zonenform ist dadurch druckabhängig und passt zu den vorhandenen Zustandspunkten: Liegt ein Punkt in der Zone, ist der Luftzustand behaglich.
+Die Polygone stammen aus der [HSLU-edar-Referenz `comfortTempHum.Rmd`](https://github.com/hslu-ige-laes/edar/blob/master/partDataVis/comfortTempHum.Rmd) (dort in einem T/φ-Plot). In dieser App werden die Kanten linear in (T, φ) abgetastet und über die Psychrometrie φ→x ins h,x-Koordinatensystem transformiert; die Zonenform ist dadurch druckabhängig und passt zu den vorhandenen Zustandspunkten: Liegt ein Punkt in der Zone, ist der Luftzustand behaglich.
 
 ## Physikalische Grundlagen
 
@@ -109,17 +110,17 @@ Formeln und Konstanten nach VDI 4670 Blatt 1 bzw. ASHRAE Fundamentals; Sättigun
 - **Sättigungsdampfdruck**: Magnus-Formel (getrennte Koeffizienten für T ≥ 0 °C über Wasser und T < 0 °C über Eis)
 - **Barometrischer Druck**: ICAO-Standardatmosphäre: `p = 101325 · (1 − 2.25577·10⁻⁵ · H)^5.25588`
 - **Enthalpie (ungesättigt)**: `h = 1.006·T + x·(2501 + 1.86·T)` in kJ/kg trockene Luft
-- **Enthalpie (Nebelgebiet, x > x_s)**: `h = 1.006·T + x_s·(2501 + 1.86·T) + (x − x_s)·4.19·T` – nur x_s ist dampfförmig, der Rest flüssig
+- **Enthalpie (Nebelgebiet, x > x_s)**: `h = 1.006·T + x_s·(2501 + 1.86·T) + (x − x_s)·4.19·T`; nur x_s ist dampfförmig, der Rest flüssig
 - **Absolute Feuchte**: `x = 0.622 · pD / (p − pD)` in kg/kg
-- **Dichte feuchter Luft**: `ρ = p/(R_d·T_abs) · (1 + x)/(1 + 1.608·x_Dampf)` – im Nebelgebiet mit `x_Dampf = x_s`
+- **Dichte feuchter Luft**: `ρ = p/(R_d·T_abs) · (1 + x)/(1 + 1.608·x_Dampf)`; im Nebelgebiet mit `x_Dampf = x_s`
 
 Übersättigte Zustandspunkte (im Nebelgebiet, unterhalb der Sättigungslinie) werden mit φ = 100 %, T_d = T gerechnet und in Punktkarte und Tooltip als **„Nebelgebiet (übersättigt)"** gekennzeichnet.
 
 ## Tech-Stack
 
-- [Vite](https://vitejs.dev/) – Build-Tool und Entwicklungsserver
-- [D3.js](https://d3js.org/) v7 – SVG-Rendering und Interaktion
-- Vanilla JavaScript (ES Modules) – kein Framework
+- [Vite](https://vitejs.dev/): Build-Tool und Entwicklungsserver
+- [D3.js](https://d3js.org/) v7: SVG-Rendering und Interaktion
+- Vanilla JavaScript (ES Modules); kein Framework
 
 ## Inspiration
 

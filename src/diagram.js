@@ -298,7 +298,7 @@ export class HXDiagram {
     const second = points[1];
 
     if (first[0] < 1e-6) {
-      // Linie tritt links ein – Beschriftung ausserhalb, links der Achsen-Ticks
+      // Linie tritt links ein; Beschriftung ausserhalb, links der Achsen-Ticks
       this.labelGroup.append('text')
         .attr('x', this.xScale(0) - 32)
         .attr('y', this.yScale(psy.temperatureFromEnthalpy(h, 0)))
@@ -310,7 +310,7 @@ export class HXDiagram {
       return;
     }
 
-    // Linie tritt oben ein – Beschriftung ausserhalb über dem Rahmen, entlang der Linie gedreht
+    // Linie tritt oben ein; Beschriftung ausserhalb über dem Rahmen, entlang der Linie gedreht
     const xTop = 1000 * (h - 1.006 * tMax) / (2501 + 1.86 * tMax);
     const labelX = this.xScale(xTop);
     const labelY = this.yScale(tMax) - 6;
@@ -337,7 +337,7 @@ export class HXDiagram {
       .y(d => this.yScale(d[1]))
       .curve(d3.curveCatmullRom.alpha(0.5));
 
-    // x steigt monoton mit T – Kurven beginnen exakt am unteren Rand (tMin) und
+    // x steigt monoton mit T; Kurven beginnen exakt am unteren Rand (tMin) und
     // enden exakt am oberen (tMax) bzw. interpoliert am rechten Rand (xMax)
     const nSteps = Math.max(2, Math.ceil((tMax - tMin) / 0.5));
 
@@ -394,7 +394,7 @@ export class HXDiagram {
     const points = [];
     let prev = null;
 
-    // x steigt monoton mit T – am rechten Rand Schnittpunkt interpolieren und abbrechen
+    // x steigt monoton mit T; am rechten Rand Schnittpunkt interpolieren und abbrechen
     const nSteps = Math.max(2, Math.ceil((tMax - tMin) / 0.25));
     for (let i = 0; i <= nSteps; i++) {
       const T = tMin + (i / nSteps) * (tMax - tMin);
@@ -628,7 +628,7 @@ export class HXDiagram {
     // Punkte
     const self = this;
     const drag = d3.drag()
-      // Gestenursprung in Pixelkoordinaten – das Datum selbst (d.x in g/kg) taugt nicht als subject
+      // Gestenursprung in Pixelkoordinaten; das Datum selbst (d.x in g/kg) taugt nicht als subject
       .subject((event, d) => ({ x: self.xScale(d.x), y: self.yScale(d.T) }))
       .on('start', function () {
         d3.select(this).raise().attr('opacity', 0.7);
