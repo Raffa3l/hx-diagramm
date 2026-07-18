@@ -104,13 +104,6 @@ die Versionierung folgt [Semantic Versioning](https://semver.org/lang/de/).
   Temperaturen) wird abgefangen.
 - Meta-Description in `index.html` ergänzt.
 
-### Entfernt
-- Toter Code in `drawSaturationCurve` (`areaPoints`, `fogArea`) sowie ungenutzte
-  Imports und Destrukturierungen.
-- Obsoleter GitHub-Actions-Workflow `.github/workflows/deploy.yml` – GitHub Pages
-  serviert die Quelldateien direkt vom Branch (siehe CLAUDE.md), der Workflow
-  deployte ins Leere.
-
 ## [1.0.0] – 2026-06-21
 
 ### Hinzugefügt
