@@ -16,6 +16,9 @@ Interaktive Web-App zur Darstellung eines Mollier h,x-Diagramms für feuchte Luf
 - **Interaktive Zustandspunkte** – Per Klick ins Diagramm setzen, per Drag & Drop verschieben oder numerisch eingeben
 - **Prozesslinien** – Automatische Verbindung zwischen Zustandspunkten
 - **Vollständige Zustandsberechnung** – Temperatur, relative/absolute Feuchte, Enthalpie, Taupunkt und Dichte
+- **Leistungsberechnung** – Massen- oder Volumenstrom eingeben (kg/s, kg/h, m³/s, m³/h); die App berechnet pro Prozessabschnitt Heiz-/Kühlleistung `Q = ṁ·Δh` (kW) und Be-/Entfeuchtungsleistung `ṁ·Δx` (kg/h) samt Gesamtbilanz
+- **Behaglichkeitszonen** – Zuschaltbares Komfort-Overlay („behaglich" / „noch behaglich") nach der HSLU-edar-Referenz, ins h,x-Koordinatensystem transformiert
+- **Design nach Seven-Air-Vorlage** – Monochromes Liniennetz, Helvetica-Beschriftung, alle Linien bis zum Diagrammrand
 
 ### Dargestellte Grössen
 
@@ -75,12 +78,42 @@ Jeder Zustandspunkt zeigt:
 
 Punkte können per Drag & Drop verschoben werden. Zwischen aufeinanderfolgenden Punkten werden Prozesslinien gezeichnet.
 
+## Luftstrom & Leistung
+
+Im Panel „Luftstrom & Leistung" kann ein Massenstrom (kg/s oder kg/h) oder ein Volumenstrom (m³/s oder m³/h) eingegeben werden. Für jeden Prozessabschnitt Pᵢ → Pᵢ₊₁ berechnet die App:
+
+| Grösse | Formel | Einheit |
+|---|---|---|
+| Heiz-/Kühlleistung | `Q = ṁ · Δh` | kW |
+| Be-/Entfeuchtungsleistung | `ṁ_W = ṁ · Δx` | kg/h |
+
+Bei mehr als zwei Punkten wird zusätzlich die Gesamtbilanz über die ganze Prozesskette angezeigt.
+
+**Konventionen:** Der Massenstrom ṁ ist auf trockene Luft bezogen (h und x sind pro kg trockene Luft definiert). Ein eingegebener Volumenstrom wird je Abschnitt mit der Dichte und Feuchte am Abschnittsanfang umgerechnet: `ṁ = V̇ · ρ / (1 + x)`.
+
+## Behaglichkeitszonen
+
+Über die Checkbox **„Behaglichkeitszonen anzeigen"** (Panel „Konfiguration") lassen sich zwei Komfortzonen ein- und ausblenden:
+
+| Zone | Darstellung | Eckpunkte (T in °C / φ in %) |
+|---|---|---|
+| behaglich | gelbgrün, 40 % Deckkraft | (19/38), (17.5/74), (22.5/65), (24/35) |
+| noch behaglich | orange, 25 % Deckkraft | (20/20), (17/40), (16/75), (17/85), (21.5/80), (25/60), (27/30), (25.5/20) |
+
+Die Polygone stammen aus der [HSLU-edar-Referenz `comfortTempHum.Rmd`](https://github.com/hslu-ige-laes/edar/blob/master/partDataVis/comfortTempHum.Rmd) (dort in einem T/φ-Plot). In dieser App werden die Kanten linear in (T, φ) abgetastet und über die Psychrometrie φ→x ins h,x-Koordinatensystem transformiert – die Zonenform ist dadurch druckabhängig und passt zu den vorhandenen Zustandspunkten: Liegt ein Punkt in der Zone, ist der Luftzustand behaglich.
+
 ## Physikalische Grundlagen
 
-- **Sättigungsdampfdruck**: Magnus-Formel (getrennte Koeffizienten für T ≥ 0 °C und T < 0 °C über Eis)
+Formeln und Konstanten nach VDI 4670 Blatt 1 bzw. ASHRAE Fundamentals; Sättigungsdampfdruck nach Magnus mit Tetens-Koeffizienten (vgl. VDI 3786 Blatt 4).
+
+- **Sättigungsdampfdruck**: Magnus-Formel (getrennte Koeffizienten für T ≥ 0 °C über Wasser und T < 0 °C über Eis)
 - **Barometrischer Druck**: ICAO-Standardatmosphäre: `p = 101325 · (1 − 2.25577·10⁻⁵ · H)^5.25588`
-- **Enthalpie**: `h = 1.006·T + x·(2501 + 1.86·T)` in kJ/kg trockene Luft
+- **Enthalpie (ungesättigt)**: `h = 1.006·T + x·(2501 + 1.86·T)` in kJ/kg trockene Luft
+- **Enthalpie (Nebelgebiet, x > x_s)**: `h = 1.006·T + x_s·(2501 + 1.86·T) + (x − x_s)·4.19·T` – nur x_s ist dampfförmig, der Rest flüssig
 - **Absolute Feuchte**: `x = 0.622 · pD / (p − pD)` in kg/kg
+- **Dichte feuchter Luft**: `ρ = p/(R_d·T_abs) · (1 + x)/(1 + 1.608·x_Dampf)` – im Nebelgebiet mit `x_Dampf = x_s`
+
+Übersättigte Zustandspunkte (im Nebelgebiet, unterhalb der Sättigungslinie) werden mit φ = 100 %, T_d = T gerechnet und in Punktkarte und Tooltip als **„Nebelgebiet (übersättigt)"** gekennzeichnet.
 
 ## Tech-Stack
 

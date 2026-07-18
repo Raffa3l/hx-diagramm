@@ -8,8 +8,9 @@
 
 :root {
   --sidebar-width: 300px;
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
+  /* Akzentfarbe nach Seven-Air-Vorlage (Petrol/Teal des Firmenlogos) */
+  --color-primary: #00a19a;
+  --color-primary-hover: #00807a;
   --color-danger: #dc2626;
   --color-danger-hover: #b91c1c;
   --color-bg: #f3f4f6;
@@ -99,12 +100,24 @@ body {
 .form-group select:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 2px rgba(0, 161, 154, 0.18);
 }
 
 .form-row {
   display: flex;
   gap: 8px;
+}
+
+.form-check label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.form-check input[type="checkbox"] {
+  width: auto;
+  accent-color: var(--color-primary);
 }
 
 .form-row .form-group {
@@ -167,6 +180,8 @@ body {
   background: var(--color-surface);
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  /* Diagrammschrift wie Seven-Air-Vorlage */
+  font-family: Helvetica, Arial, sans-serif;
 }
 
 .point-card {
@@ -207,6 +222,48 @@ body {
 
 .point-card .btn-remove:hover {
   color: var(--color-danger);
+}
+
+/* Kennzeichnung übersättigter Zustandspunkte (x > x_s) */
+.point-card .fog-tag {
+  grid-column: 1 / -1;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+#power-results {
+  margin-top: 8px;
+}
+
+.empty-hint {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.power-card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  font-size: 0.78rem;
+}
+
+.power-card .power-label {
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+
+.power-card .power-values {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 8px;
+  color: var(--color-text);
+}
+
+.power-total {
+  border-color: var(--color-primary);
 }
 
 .tooltip {

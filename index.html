@@ -48,6 +48,12 @@
           <label for="x-max">x max (g/kg)</label>
           <input type="number" id="x-max" value="30" min="10" max="50" step="5">
         </div>
+        <div class="form-group form-check">
+          <label for="show-comfort">
+            <input type="checkbox" id="show-comfort">
+            Behaglichkeitszonen anzeigen
+          </label>
+        </div>
         <button id="btn-update-config" class="btn btn-primary">Diagramm aktualisieren</button>
       </section>
 
@@ -73,6 +79,29 @@
           <input type="number" id="input-x" value="7" min="0" step="0.1">
         </div>
         <button id="btn-add-point" class="btn btn-primary">Punkt hinzufügen</button>
+      </section>
+
+      <section class="panel">
+        <h2>Luftstrom &amp; Leistung</h2>
+        <div class="form-group">
+          <label for="flow-type">Angabe als</label>
+          <select id="flow-type">
+            <option value="mass">Massenstrom ṁ</option>
+            <option value="volume">Volumenstrom V̇</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="flow-value">Wert</label>
+            <input type="number" id="flow-value" min="0" step="any" placeholder="z.B. 3600">
+          </div>
+          <div class="form-group">
+            <label for="flow-unit">Einheit</label>
+            <select id="flow-unit"></select>
+          </div>
+        </div>
+        <span class="hint">ṁ bezogen auf trockene Luft; V̇ wird mit ρ und x am Abschnittsanfang umgerechnet.</span>
+        <div id="power-results"></div>
       </section>
 
       <section class="panel">

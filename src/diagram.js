@@ -1,20 +1,45 @@
 import * as d3 from 'd3';
 import * as psy from './psychrometrics.js';
 
+// Monochromes Farbschema nach Seven-Air-Vorlage: alle Diagrammlinien schwarz/grau,
+// nur interaktive Elemente (Zustandspunkte, Prozesslinien) farbig
 const COLORS = {
-  grid: '#d4d4d4',
-  gridMinor: '#e8e8e8',
-  enthalpy: '#9ca3af',
-  enthalpyLabel: '#9ca3af',
-  phi: '#4472C4',
-  phiLabel: '#3b63a6',
-  saturation: '#1e3a5f',
-  saturationFill: 'rgba(219, 234, 254, 0.25)',
-  axis: '#374151',
-  axisLabel: '#374151',
+  grid: '#b0b0b0',
+  gridMinor: '#dcdcdc',
+  enthalpy: '#4b4b4b',
+  enthalpyLabel: '#4b4b4b',
+  phi: '#1a1a1a',
+  phiLabel: '#1a1a1a',
+  saturation: '#000000',
+  saturationFill: 'rgba(0, 0, 0, 0.04)',
+  axis: '#1a1a1a',
+  axisLabel: '#1a1a1a',
   point: '#dc2626',
   processLine: '#dc2626',
 };
+
+// Behaglichkeitszonen nach HSLU-edar-Referenz (comfortTempHum.Rmd):
+// Polygone in (T in °C, φ in %); Kanten werden über φ→x ins h,x-Koordinatensystem
+// transformiert (aus Geraden werden dabei druckabhängige Kurven).
+// labelAnchor ebenfalls in (T, φ).
+const COMFORT_ZONES = [
+  {
+    name: 'noch behaglich',
+    fill: 'rgba(255, 165, 0, 0.25)',
+    stroke: 'rgba(217, 119, 6, 0.6)',
+    labelColor: '#b45309',
+    labelAnchor: [21.5, 26],
+    vertices: [[20, 20], [17, 40], [16, 75], [17, 85], [21.5, 80], [25, 60], [27, 30], [25.5, 20]],
+  },
+  {
+    name: 'behaglich',
+    fill: 'rgba(154, 205, 50, 0.4)',
+    stroke: 'rgba(77, 124, 15, 0.6)',
+    labelColor: '#4d7c0f',
+    labelAnchor: [20.8, 53],
+    vertices: [[19, 38], [17.5, 74], [22.5, 65], [24, 35]],
+  },
+];
 
 export class HXDiagram {
   constructor(container, config, callbacks = {}) {
@@ -55,6 +80,7 @@ export class HXDiagram {
     this.enthalpyGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
     this.phiGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
     this.fogGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
+    this.comfortGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
     this.satGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
     this.processGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
     this.pointsGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
@@ -106,8 +132,61 @@ export class HXDiagram {
     this.drawEnthalpyLines();
     this.drawPhiLines();
     this.drawSaturationCurve();
+    this.drawComfortZones();
     this.drawAxes();
     this.drawTitle();
+  }
+
+  // Behaglichkeitszonen als transparente Overlays (zuschaltbar über config.showComfort)
+  drawComfortZones() {
+    this.comfortGroup.selectAll('*').remove();
+    if (!this.config.showComfort) return;
+
+    const { pressure } = this.config;
+    const toXY = (T, phiPct) => [psy.humidityRatio(T, phiPct / 100, pressure) * 1000, T];
+
+    const line = d3.line()
+      .x(d => this.xScale(d[0]))
+      .y(d => this.yScale(d[1]));
+
+    for (const zone of COMFORT_ZONES) {
+      // Kanten in (T, φ) linear abtasten, damit sie im h,x-System korrekt gekrümmt sind
+      const points = [];
+      const n = zone.vertices.length;
+      for (let i = 0; i < n; i++) {
+        const [T1, phi1] = zone.vertices[i];
+        const [T2, phi2] = zone.vertices[(i + 1) % n];
+        const steps = 8;
+        for (let s = 0; s < steps; s++) {
+          const T = T1 + (s / steps) * (T2 - T1);
+          const phi = phi1 + (s / steps) * (phi2 - phi1);
+          points.push(toXY(T, phi));
+        }
+      }
+
+      this.comfortGroup.append('path')
+        .attr('d', line(points) + 'Z')
+        .attr('fill', zone.fill)
+        .attr('stroke', zone.stroke)
+        .attr('stroke-width', 1);
+
+      const [aT, aPhi] = zone.labelAnchor;
+      const [ax, ay] = toXY(aT, aPhi);
+      this.comfortGroup.append('text')
+        .attr('x', this.xScale(ax))
+        .attr('y', this.yScale(ay))
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'middle')
+        .attr('font-size', '10px')
+        .attr('font-style', 'italic')
+        .attr('fill', zone.labelColor)
+        .text(zone.name);
+    }
+  }
+
+  setShowComfort(visible) {
+    this.config.showComfort = visible;
+    this.drawComfortZones();
   }
 
   drawGrid() {
@@ -151,16 +230,22 @@ export class HXDiagram {
       .x(d => this.xScale(d[0]))
       .y(d => this.yScale(d[1]));
 
+    // x-Position (g/kg) einer Enthalpielinie bei Temperatur T: h = 1.006·T + x·(2501 + 1.86·T)
+    const xAtT = (h, T) => 1000 * (h - 1.006 * T) / (2501 + 1.86 * T);
+
     for (let h = hStart; h <= hEnd; h += hStep) {
+      // Exakte Schnittpunkte mit dem Rahmen: T fällt monoton mit x,
+      // Eintritt also oben (tMax) oder links (x = 0), Austritt unten (tMin) oder rechts (xMax)
+      const xStart = Math.max(0, xAtT(h, tMax));
+      const xEnd = Math.min(xMax, xAtT(h, tMin));
+      if (xEnd - xStart < 1e-9) continue;
+
       const points = [];
-      for (let x_gkg = 0; x_gkg <= xMax; x_gkg += 0.5) {
-        const x_kgkg = x_gkg / 1000;
-        const T = psy.temperatureFromEnthalpy(h, x_kgkg);
-        if (T >= tMin && T <= tMax) {
-          points.push([x_gkg, T]);
-        }
+      const nSteps = 24;
+      for (let i = 0; i <= nSteps; i++) {
+        const x_gkg = xStart + (i / nSteps) * (xEnd - xStart);
+        points.push([x_gkg, psy.temperatureFromEnthalpy(h, x_gkg / 1000)]);
       }
-      if (points.length < 2) continue;
 
       const isLabel = h % 10 === 0;
 
@@ -169,13 +254,42 @@ export class HXDiagram {
         .attr('d', line)
         .attr('fill', 'none')
         .attr('stroke', COLORS.enthalpy)
-        .attr('stroke-width', isLabel ? 0.6 : 0.3)
-        .attr('stroke-dasharray', isLabel ? 'none' : '2,2');
+        .attr('stroke-width', isLabel ? 0.7 : 0.35);
 
-      if (isLabel && points.length >= 2) {
+      if (isLabel) {
         this.placeEnthalpyLabel(h, points);
       }
     }
+
+    this.drawEnthalpyAxisLabel();
+  }
+
+  // „Spezifische Enthalpie h in kJ/kg" diagonal entlang der Linienrichtung (wie Vorlage)
+  drawEnthalpyAxisLabel() {
+    const { tMin, tMax, xMax } = this.config;
+    const xLabel = xMax * 0.5;
+    const tLabel = tMin + (tMax - tMin) * 0.14;
+    const h = psy.enthalpy(tLabel, xLabel / 1000);
+
+    const dxg = xMax * 0.05;
+    const t1 = psy.temperatureFromEnthalpy(h, (xLabel - dxg) / 1000);
+    const t2 = psy.temperatureFromEnthalpy(h, (xLabel + dxg) / 1000);
+    const dx = this.xScale(xLabel + dxg) - this.xScale(xLabel - dxg);
+    const dy = this.yScale(t2) - this.yScale(t1);
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+    const px = this.xScale(xLabel);
+    const py = this.yScale(tLabel) - 5;
+
+    this.labelGroup.append('text')
+      .attr('x', px)
+      .attr('y', py)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', '10px')
+      .attr('font-style', 'italic')
+      .attr('fill', COLORS.enthalpyLabel)
+      .attr('transform', `rotate(${angle}, ${px}, ${py})`)
+      .text('Spezifische Enthalpie h in kJ/kg');
   }
 
   placeEnthalpyLabel(h, points) {
@@ -183,7 +297,7 @@ export class HXDiagram {
     const first = points[0];
     const second = points[1];
 
-    if (first[0] < 0.25) {
+    if (first[0] < 1e-6) {
       // Linie tritt links ein – Beschriftung ausserhalb, links der Achsen-Ticks
       this.labelGroup.append('text')
         .attr('x', this.xScale(0) - 32)
@@ -223,14 +337,26 @@ export class HXDiagram {
       .y(d => this.yScale(d[1]))
       .curve(d3.curveCatmullRom.alpha(0.5));
 
+    // x steigt monoton mit T – Kurven beginnen exakt am unteren Rand (tMin) und
+    // enden exakt am oberen (tMax) bzw. interpoliert am rechten Rand (xMax)
+    const nSteps = Math.max(2, Math.ceil((tMax - tMin) / 0.5));
+
     for (const phi of phiValues) {
       const points = [];
-      for (let T = tMin; T <= tMax; T += 0.5) {
-        const x_kgkg = psy.humidityRatio(T, phi, pressure);
-        const x_gkg = x_kgkg * 1000;
-        if (x_gkg >= 0 && x_gkg <= xMax) {
-          points.push([x_gkg, T]);
+      let prev = null;
+      for (let i = 0; i <= nSteps; i++) {
+        const T = tMin + (i / nSteps) * (tMax - tMin);
+        const x_gkg = psy.humidityRatio(T, phi, pressure) * 1000;
+        if (!Number.isFinite(x_gkg)) break;
+        if (x_gkg > xMax) {
+          if (prev) {
+            const t = (xMax - prev[0]) / (x_gkg - prev[0]);
+            points.push([xMax, prev[1] + t * (T - prev[1])]);
+          }
+          break;
         }
+        prev = [x_gkg, T];
+        points.push(prev);
       }
       if (points.length < 2) continue;
 
@@ -239,8 +365,7 @@ export class HXDiagram {
         .attr('d', line)
         .attr('fill', 'none')
         .attr('stroke', COLORS.phi)
-        .attr('stroke-width', 0.7)
-        .attr('opacity', 0.7);
+        .attr('stroke-width', 0.5);
 
       // Beschriftung ausserhalb des Rahmens: über dem oberen bzw. rechts neben dem rechten Rand
       const labelPt = points[points.length - 1];
@@ -270,7 +395,9 @@ export class HXDiagram {
     let prev = null;
 
     // x steigt monoton mit T – am rechten Rand Schnittpunkt interpolieren und abbrechen
-    for (let T = tMin; T <= tMax; T += 0.25) {
+    const nSteps = Math.max(2, Math.ceil((tMax - tMin) / 0.25));
+    for (let i = 0; i <= nSteps; i++) {
+      const T = tMin + (i / nSteps) * (tMax - tMin);
       const x_gkg = psy.humidityRatio(T, 1.0, pressure) * 1000;
       if (x_gkg > xMax) {
         if (prev) {
@@ -385,7 +512,7 @@ export class HXDiagram {
       .attr('font-size', '12px')
       .attr('fill', COLORS.axisLabel)
       .attr('transform', 'rotate(-90)')
-      .text('Temperatur T in °C');
+      .text('Temperatur t in °C');
 
     // Einheit der Enthalpie-Spalte links ausserhalb
     this.axesGroup.append('text')
@@ -395,6 +522,15 @@ export class HXDiagram {
       .attr('font-size', '8px')
       .attr('fill', COLORS.enthalpyLabel)
       .text('h in kJ/kg');
+
+    // Überschrift der φ-Beschriftungen über dem oberen Rand (wie Vorlage)
+    this.axesGroup.append('text')
+      .attr('x', plotLeft + 4)
+      .attr('y', plotTop - 8)
+      .attr('text-anchor', 'start')
+      .attr('font-size', '9px')
+      .attr('fill', COLORS.phiLabel)
+      .text('Relative Feuchtigkeit φ in %');
 
     // Rahmen
     this.axesGroup.append('rect')
@@ -426,7 +562,7 @@ export class HXDiagram {
       .attr('text-anchor', 'middle')
       .attr('font-size', '11px')
       .attr('fill', COLORS.enthalpyLabel)
-      .text(`p = ${p_mbar} mbar, H = ${h_m} m ü.M.`);
+      .text(`p = ${p_mbar} mbar, H = ${h_m} m.ü.M.`);
   }
 
   // --- Zustandspunkte ---
@@ -548,7 +684,7 @@ export class HXDiagram {
             x = ${d.x.toFixed(2)} g/kg<br>
             φ = ${(d.phi * 100).toFixed(1)} %<br>
             h = ${d.h.toFixed(1)} kJ/kg<br>
-            T<sub>d</sub> = ${d.Td.toFixed(1)} °C
+            T<sub>d</sub> = ${d.Td.toFixed(1)} °C${d.fog ? '<br><em>Nebelgebiet (übersättigt)</em>' : ''}
           `);
       })
       .on('mousemove', (event) => {
