@@ -680,9 +680,18 @@ export class HXDiagram {
       .attr('fill', COLORS.point)
       .text(d => d.label);
 
-    // Tooltip bei Hover
+    // Tooltip bei Hover; Position auch beim Eintreten setzen, sonst erscheint
+    // es an der letzten gespeicherten Stelle (z.B. wenn ein neuer Punkt per
+    // Klick direkt unter dem Cursor entsteht und mouseenter sofort feuert)
+    const placeTooltip = (event) => {
+      this.tooltip
+        .style('left', (event.pageX + 14) + 'px')
+        .style('top', (event.pageY - 14) + 'px');
+    };
+
     groups
       .on('mouseenter', (event, d) => {
+        placeTooltip(event);
         this.tooltip
           .style('display', 'block')
           .html(`
@@ -694,11 +703,7 @@ export class HXDiagram {
             T<sub>d</sub> = ${d.Td.toFixed(1)} °C${d.fog ? '<br><em>Nebelgebiet (übersättigt)</em>' : ''}
           `);
       })
-      .on('mousemove', (event) => {
-        this.tooltip
-          .style('left', (event.pageX + 14) + 'px')
-          .style('top', (event.pageY - 14) + 'px');
-      })
+      .on('mousemove', placeTooltip)
       .on('mouseleave', () => {
         this.tooltip.style('display', 'none');
       });
