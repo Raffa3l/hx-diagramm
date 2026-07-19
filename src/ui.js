@@ -6,6 +6,23 @@ function readNumber(input, fallback) {
   return Number.isFinite(value) ? value : fallback;
 }
 
+// Wert lesen und auf die min/max-Attribute des Feldes klemmen (die Attribute
+// greifen bei getippten Werten nicht). Bei Begrenzung wird eine Meldung
+// gesammelt und der Wert optional ins Feld zurückgeschrieben.
+function readClamped(input, fallback, label, unit, messages, writeBack) {
+  const raw = readNumber(input, fallback);
+  const min = parseFloat(input.min);
+  const max = parseFloat(input.max);
+  let value = raw;
+  if (Number.isFinite(min)) value = Math.max(min, value);
+  if (Number.isFinite(max)) value = Math.min(max, value);
+  if (value !== raw) {
+    messages.push(`${label} auf ${value} ${unit} begrenzt (zulässig ${min} bis ${max} ${unit}).`);
+    if (writeBack) input.value = value;
+  }
+  return value;
+}
+
 // Wählbare Einheiten je Stromart; factor rechnet auf die SI-Basis (kg/s bzw. m³/s) um
 const FLOW_UNITS = {
   mass: [
@@ -52,6 +69,7 @@ export function setupUI(diagram) {
   const showComfortCheckbox = document.getElementById('show-comfort');
   const pressureDisplay = document.getElementById('pressure-display');
   const btnUpdateConfig = document.getElementById('btn-update-config');
+  const configHint = document.getElementById('config-hint');
 
   const inputMode = document.getElementById('input-mode');
   const inputT = document.getElementById('input-t');
@@ -70,28 +88,37 @@ export function setupUI(diagram) {
   const flowUnit = document.getElementById('flow-unit');
   const powerResults = document.getElementById('power-results');
 
-  // Das max-Attribut des Zahlenfelds greift bei getippten Werten nicht;
-  // ausserhalb 0-4000 m wäre u.a. die ICAO-Formel nicht mehr gültig
-  function readAltitude() {
-    return Math.min(4000, Math.max(0, readNumber(altitudeInput, 500)));
+  function showConfigHint(messages) {
+    configHint.textContent = messages.join(' ');
+    configHint.classList.toggle('hidden', messages.length === 0);
   }
 
   function updatePressureDisplay() {
-    const p = pressureFromAltitude(readAltitude());
-    pressureDisplay.textContent = `≈ ${(p / 100).toFixed(0)} mbar`;
+    // Beim Tippen nur anzeigen und melden, nicht ins Feld zurückschreiben
+    const messages = [];
+    const altitude = readClamped(altitudeInput, 500, 'Höhe ü. M.', 'm', messages, false);
+    pressureDisplay.textContent = `≈ ${(pressureFromAltitude(altitude) / 100).toFixed(0)} mbar`;
+    showConfigHint(messages);
   }
 
-  function getConfig() {
-    const altitude = readAltitude();
-    const tMin = readNumber(tMinInput, -10);
-    let tMax = readNumber(tMaxInput, 50);
-    if (tMax <= tMin) tMax = tMin + 10;
+  // Alle Felder auf ihre min/max-Attribute klemmen; messages sammelt die
+  // Begrenzungs-Meldungen, writeBack schreibt geklemmte Werte ins Feld zurück
+  function getConfig(messages = [], writeBack = false) {
+    const altitude = readClamped(altitudeInput, 500, 'Höhe ü. M.', 'm', messages, writeBack);
+    const tMin = readClamped(tMinInput, -10, 'T min', '°C', messages, writeBack);
+    let tMax = readClamped(tMaxInput, 50, 'T max', '°C', messages, writeBack);
+    // Durch die Attributgrenzen (tMin ≤ 0 < 20 ≤ tMax) nicht mehr erreichbar; Absicherung
+    if (tMax <= tMin) {
+      tMax = tMin + 10;
+      messages.push(`T max muss über T min liegen; auf ${tMax} °C gesetzt.`);
+      if (writeBack) tMaxInput.value = tMax;
+    }
     return {
       altitude,
       pressure: pressureFromAltitude(altitude),
       tMin,
       tMax,
-      xMax: Math.max(1, readNumber(xMaxInput, 30)),
+      xMax: readClamped(xMaxInput, 30, 'x max', 'g/kg', messages, writeBack),
       showComfort: showComfortCheckbox.checked,
     };
   }
@@ -104,7 +131,9 @@ export function setupUI(diagram) {
   });
 
   btnUpdateConfig.addEventListener('click', () => {
-    const config = getConfig();
+    const messages = [];
+    const config = getConfig(messages, true);
+    showConfigHint(messages);
     diagram.update(config);
   });
 
@@ -125,14 +154,20 @@ export function setupUI(diagram) {
 
   btnAddPoint.addEventListener('click', () => {
     const T = parseFloat(inputT.value);
-    if (isNaN(T)) return;
+    if (isNaN(T)) {
+      showAddPointHint('Gültige Temperatur eingeben.');
+      return;
+    }
 
     const config = getConfig();
     let x_gkg;
 
     if (inputMode.value === 'phi') {
       const phi = parseFloat(inputPhi.value) / 100;
-      if (isNaN(phi) || phi < 0 || phi > 1) return;
+      if (isNaN(phi) || phi < 0 || phi > 1) {
+        showAddPointHint('φ muss zwischen 0 und 100 % liegen.');
+        return;
+      }
       x_gkg = humidityRatio(T, phi, config.pressure) * 1000;
       if (!Number.isFinite(x_gkg)) {
         showAddPointHint('Bei dieser Temperatur ergibt die φ-Eingabe keine gültige Feuchte.');
@@ -140,7 +175,10 @@ export function setupUI(diagram) {
       }
     } else {
       x_gkg = parseFloat(inputX.value);
-      if (isNaN(x_gkg) || x_gkg < 0) return;
+      if (isNaN(x_gkg) || x_gkg < 0) {
+        showAddPointHint('x muss eine Zahl ≥ 0 sein.');
+        return;
+      }
     }
 
     // Nur Punkte im dargestellten Bereich zulassen: geclippte (unsichtbare) Punkte
