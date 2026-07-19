@@ -69,6 +69,12 @@ export function temperatureFromEnthalpy(h, x) {
   return (h - R0 * x) / (CP_AIR + CP_VAP * x);
 }
 
+// Absolute Feuchte auf einer Isenthalpe bei Temperatur T (Umkehrung von enthalpy nach x)
+// h in kJ/kg, T in °C, Rückgabe in kg/kg
+export function humidityRatioFromEnthalpy(h, T) {
+  return (h - CP_AIR * T) / (R0 + CP_VAP * T);
+}
+
 // Taupunkt aus Partialdruck (Umkehrung der Magnus-Formel,
 // Zweigwahl konsistent zu saturationPressure)
 // pD in Pa, Rückgabe in °C

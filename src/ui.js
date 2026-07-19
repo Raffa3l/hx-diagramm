@@ -70,14 +70,19 @@ export function setupUI(diagram) {
   const flowUnit = document.getElementById('flow-unit');
   const powerResults = document.getElementById('power-results');
 
+  // Das max-Attribut des Zahlenfelds greift bei getippten Werten nicht;
+  // ausserhalb 0-4000 m wäre u.a. die ICAO-Formel nicht mehr gültig
+  function readAltitude() {
+    return Math.min(4000, Math.max(0, readNumber(altitudeInput, 500)));
+  }
+
   function updatePressureDisplay() {
-    const alt = readNumber(altitudeInput, 500);
-    const p = pressureFromAltitude(alt);
+    const p = pressureFromAltitude(readAltitude());
     pressureDisplay.textContent = `≈ ${(p / 100).toFixed(0)} mbar`;
   }
 
   function getConfig() {
-    const altitude = readNumber(altitudeInput, 500);
+    const altitude = readAltitude();
     const tMin = readNumber(tMinInput, -10);
     let tMax = readNumber(tMaxInput, 50);
     if (tMax <= tMin) tMax = tMin + 10;
@@ -152,8 +157,8 @@ export function setupUI(diagram) {
   });
 
   btnClearPoints.addEventListener('click', () => {
+    // clearStatePoints leert Punktliste und Leistungsanzeige via onPointsChanged
     diagram.clearStatePoints();
-    renderPointsList([]);
   });
 
   function renderPointsList(points) {
@@ -260,7 +265,6 @@ export function setupUI(diagram) {
     renderPointsList(points);
     renderPowerResults(points);
   };
-  diagram.callbacks.onPointAdded = () => {};
 
   updatePressureDisplay();
   populateFlowUnits();

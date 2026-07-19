@@ -192,7 +192,9 @@ body {
   font-family: Helvetica, Arial, sans-serif;
 }
 
-.point-card {
+/* Gemeinsamer Karten-Stil für Zustandspunkt- und Leistungskarten */
+.point-card,
+.power-card {
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: 6px;
@@ -208,7 +210,8 @@ body {
   margin-bottom: 4px;
 }
 
-.point-card .point-values {
+.point-card .point-values,
+.power-card .power-values {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2px 8px;
@@ -248,26 +251,10 @@ body {
   color: var(--color-text-muted);
 }
 
-.power-card {
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  padding: 8px 10px;
-  margin-bottom: 6px;
-  font-size: 0.78rem;
-}
-
 .power-card .power-label {
   font-weight: 600;
   color: var(--color-primary);
   margin-bottom: 4px;
-}
-
-.power-card .power-values {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2px 8px;
-  color: var(--color-text);
 }
 
 .power-total {

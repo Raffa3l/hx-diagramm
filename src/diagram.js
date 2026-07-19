@@ -143,7 +143,12 @@ export class HXDiagram {
     if (!this.config.showComfort) return;
 
     const { pressure } = this.config;
-    const toXY = (T, phiPct) => [psy.humidityRatio(T, phiPct / 100, pressure) * 1000, T];
+    // null bei unendlicher Feuchte (pD ≥ p, nur bei extrem geringem Druck möglich):
+    // solche Vertices würden das Polygon mit NaN-Koordinaten zerstören
+    const toXY = (T, phiPct) => {
+      const x_gkg = psy.humidityRatio(T, phiPct / 100, pressure) * 1000;
+      return Number.isFinite(x_gkg) ? [x_gkg, T] : null;
+    };
 
     const line = d3.line()
       .x(d => this.xScale(d[0]))
@@ -160,9 +165,11 @@ export class HXDiagram {
         for (let s = 0; s < steps; s++) {
           const T = T1 + (s / steps) * (T2 - T1);
           const phi = phi1 + (s / steps) * (phi2 - phi1);
-          points.push(toXY(T, phi));
+          const p = toXY(T, phi);
+          if (p) points.push(p);
         }
       }
+      if (points.length < 3) continue;
 
       this.comfortGroup.append('path')
         .attr('d', line(points) + 'Z')
@@ -171,7 +178,9 @@ export class HXDiagram {
         .attr('stroke-width', 1);
 
       const [aT, aPhi] = zone.labelAnchor;
-      const [ax, ay] = toXY(aT, aPhi);
+      const anchor = toXY(aT, aPhi);
+      if (!anchor) continue;
+      const [ax, ay] = anchor;
       this.comfortGroup.append('text')
         .attr('x', this.xScale(ax))
         .attr('y', this.yScale(ay))
@@ -230,8 +239,8 @@ export class HXDiagram {
       .x(d => this.xScale(d[0]))
       .y(d => this.yScale(d[1]));
 
-    // x-Position (g/kg) einer Enthalpielinie bei Temperatur T: h = 1.006·T + x·(2501 + 1.86·T)
-    const xAtT = (h, T) => 1000 * (h - 1.006 * T) / (2501 + 1.86 * T);
+    // x-Position (g/kg) einer Enthalpielinie bei Temperatur T
+    const xAtT = (h, T) => 1000 * psy.humidityRatioFromEnthalpy(h, T);
 
     for (let h = hStart; h <= hEnd; h += hStep) {
       // Exakte Schnittpunkte mit dem Rahmen: T fällt monoton mit x,
@@ -311,7 +320,7 @@ export class HXDiagram {
     }
 
     // Linie tritt oben ein; Beschriftung ausserhalb über dem Rahmen, entlang der Linie gedreht
-    const xTop = 1000 * (h - 1.006 * tMax) / (2501 + 1.86 * tMax);
+    const xTop = 1000 * psy.humidityRatioFromEnthalpy(h, tMax);
     const labelX = this.xScale(xTop);
     const labelY = this.yScale(tMax) - 6;
     const dx = this.xScale(second[0]) - this.xScale(first[0]);
@@ -714,10 +723,7 @@ export class HXDiagram {
       const x_gkg = this.xScale.invert(mx);
       const T = this.yScale.invert(my);
 
-      const point = this.addStatePoint(T, x_gkg);
-      if (this.callbacks.onPointAdded) {
-        this.callbacks.onPointAdded(point);
-      }
+      this.addStatePoint(T, x_gkg);
     });
   }
 }
