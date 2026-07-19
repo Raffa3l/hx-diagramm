@@ -41,6 +41,11 @@ const COMFORT_ZONES = [
   },
 ];
 
+// Schwülegrenze nach Leusden/Freymark: rechts von x = 11.5 g/kg
+// wird die Luft als schwül empfunden (senkrechte Linie im h,x-Diagramm)
+const SULTRINESS_LIMIT_X = 11.5; // g/kg
+const SULTRINESS_COLOR = '#c2410c';
+
 export class HXDiagram {
   constructor(container, config, callbacks = {}) {
     this.container = container;
@@ -191,6 +196,40 @@ export class HXDiagram {
         .attr('fill', zone.labelColor)
         .text(zone.name);
     }
+
+    this.drawSultrinessLimit();
+  }
+
+  // Senkrechte Schwülegrenze bei x = 11.5 g/kg mit Beschriftung entlang der Linie.
+  // Gilt nur für ungesättigte Luft: Die Linie endet unten an der Sättigungslinie
+  // (= Taupunkt von x = 11.5 g/kg beim aktuellen Druck), darunter beginnt das Nebelgebiet.
+  drawSultrinessLimit() {
+    const { tMin, tMax, xMax, pressure } = this.config;
+    if (SULTRINESS_LIMIT_X > xMax) return;
+
+    const tSat = psy.dewPointFromX(SULTRINESS_LIMIT_X / 1000, pressure);
+    if (tSat >= tMax) return; // Linie läge vollständig im Nebelgebiet
+
+    const lx = this.xScale(SULTRINESS_LIMIT_X);
+    this.comfortGroup.append('line')
+      .attr('x1', lx)
+      .attr('x2', lx)
+      .attr('y1', this.yScale(Math.max(tMin, tSat)))
+      .attr('y2', this.yScale(tMax))
+      .attr('stroke', SULTRINESS_COLOR)
+      .attr('stroke-width', 1.2)
+      .attr('stroke-dasharray', '7,4');
+
+    const ly = this.yScale(tMax - (tMax - tMin) * 0.04);
+    this.comfortGroup.append('text')
+      .attr('x', lx - 5)
+      .attr('y', ly)
+      .attr('text-anchor', 'end')
+      .attr('font-size', '10px')
+      .attr('font-style', 'italic')
+      .attr('fill', SULTRINESS_COLOR)
+      .attr('transform', `rotate(-90, ${lx - 5}, ${ly})`)
+      .text('Schwülegrenze (x = 11,5 g/kg)');
   }
 
   setShowComfort(visible) {

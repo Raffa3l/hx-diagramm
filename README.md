@@ -17,7 +17,7 @@ Interaktive Web-App zur Darstellung eines Mollier h,x-Diagramms für feuchte Luf
 - **Prozesslinien:** Automatische Verbindung zwischen Zustandspunkten
 - **Vollständige Zustandsberechnung:** Temperatur, relative/absolute Feuchte, Enthalpie, Taupunkt und Dichte
 - **Leistungsberechnung:** Massen- oder Volumenstrom eingeben (kg/s, kg/h, m³/s, m³/h); die App berechnet pro Prozessabschnitt Heiz-/Kühlleistung `Q = ṁ·Δh` (kW) und Be-/Entfeuchtungsleistung `ṁ·Δx` (kg/h) samt Gesamtbilanz
-- **Behaglichkeitszonen:** Zuschaltbares Komfort-Overlay („behaglich" / „noch behaglich") nach der HSLU-edar-Referenz, ins h,x-Koordinatensystem transformiert
+- **Behaglichkeitszonen & Schwülegrenze:** Zuschaltbares Komfort-Overlay („behaglich" / „noch behaglich") nach der HSLU-edar-Referenz, ins h,x-Koordinatensystem transformiert, plus Schwülegrenze bei x = 11,5 g/kg (Leusden/Freymark)
 - **Design nach Seven-Air-Vorlage:** Monochromes Liniennetz, Helvetica-Beschriftung, alle Linien bis zum Diagrammrand
 - **Responsive:** Auf iPhone/iPad (unterhalb 900 px Breite) gestapeltes, scrollbares Layout mit dem Diagramm zuoberst; Zustandspunkte sind per Touch setz- und verschiebbar
 
@@ -92,14 +92,16 @@ Bei mehr als zwei Punkten wird zusätzlich die Gesamtbilanz über die ganze Proz
 
 **Konventionen:** Der Massenstrom ṁ ist auf trockene Luft bezogen (h und x sind pro kg trockene Luft definiert). Ein eingegebener Volumenstrom wird je Abschnitt mit der Dichte und Feuchte am Abschnittsanfang umgerechnet: `ṁ = V̇ · ρ / (1 + x)`.
 
-## Behaglichkeitszonen
+## Behaglichkeitszonen & Schwülegrenze
 
-Über die Checkbox **„Behaglichkeitszonen anzeigen"** (Panel „Konfiguration") lassen sich zwei Komfortzonen ein- und ausblenden:
+Über die Checkbox **„Behaglichkeitszonen & Schwülegrenze"** (Panel „Konfiguration") lassen sich zwei Komfortzonen sowie die Schwülegrenze ein- und ausblenden:
 
 | Zone | Darstellung | Eckpunkte (T in °C / φ in %) |
 |---|---|---|
 | behaglich | gelbgrün, 40 % Deckkraft | (19/38), (17.5/74), (22.5/65), (24/35) |
 | noch behaglich | orange, 25 % Deckkraft | (20/20), (17/40), (16/75), (17/85), (21.5/80), (25/60), (27/30), (25.5/20) |
+
+Zusätzlich wird die **Schwülegrenze** nach Leusden/Freymark als senkrechte, gestrichelte Linie bei **x = 11,5 g/kg** dargestellt; rechts davon wird die Luft als schwül empfunden. Die Linie gilt nur für ungesättigte Luft und endet deshalb unten an der Sättigungslinie (φ = 100 %, d.h. am druckabhängigen Taupunkt von 11,5 g/kg, bei 955 mbar ≈ 15,3 °C); darunter beginnt das Nebelgebiet. Bei x max < 11,5 g/kg liegt sie ausserhalb und wird nicht gezeichnet.
 
 Die Polygone stammen aus der [HSLU-edar-Referenz `comfortTempHum.Rmd`](https://github.com/hslu-ige-laes/edar/blob/master/partDataVis/comfortTempHum.Rmd) (dort in einem T/φ-Plot). In dieser App werden die Kanten linear in (T, φ) abgetastet und über die Psychrometrie φ→x ins h,x-Koordinatensystem transformiert; die Zonenform ist dadurch druckabhängig und passt zu den vorhandenen Zustandspunkten: Liegt ein Punkt in der Zone, ist der Luftzustand behaglich.
 
