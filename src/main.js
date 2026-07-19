@@ -9,6 +9,7 @@ const defaultConfig = {
   tMax: 50,
   xMax: 30,
   showComfort: false,
+  showSultriness: false,
 };
 
 const diagram = new HXDiagram(

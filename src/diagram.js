@@ -86,6 +86,7 @@ export class HXDiagram {
     this.phiGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
     this.fogGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
     this.comfortGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
+    this.sultrinessGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
     this.satGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
     this.processGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
     this.pointsGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
@@ -138,6 +139,7 @@ export class HXDiagram {
     this.drawPhiLines();
     this.drawSaturationCurve();
     this.drawComfortZones();
+    this.drawSultrinessLimit();
     this.drawAxes();
     this.drawTitle();
   }
@@ -196,14 +198,16 @@ export class HXDiagram {
         .attr('fill', zone.labelColor)
         .text(zone.name);
     }
-
-    this.drawSultrinessLimit();
   }
 
-  // Senkrechte Schwülegrenze bei x = 11.5 g/kg mit Beschriftung entlang der Linie.
+  // Senkrechte Schwülegrenze bei x = 11.5 g/kg mit Beschriftung entlang der Linie
+  // (zuschaltbar über config.showSultriness, unabhängig von den Behaglichkeitszonen).
   // Gilt nur für ungesättigte Luft: Die Linie endet unten an der Sättigungslinie
   // (= Taupunkt von x = 11.5 g/kg beim aktuellen Druck), darunter beginnt das Nebelgebiet.
   drawSultrinessLimit() {
+    this.sultrinessGroup.selectAll('*').remove();
+    if (!this.config.showSultriness) return;
+
     const { tMin, tMax, xMax, pressure } = this.config;
     if (SULTRINESS_LIMIT_X > xMax) return;
 
@@ -211,7 +215,7 @@ export class HXDiagram {
     if (tSat >= tMax) return; // Linie läge vollständig im Nebelgebiet
 
     const lx = this.xScale(SULTRINESS_LIMIT_X);
-    this.comfortGroup.append('line')
+    this.sultrinessGroup.append('line')
       .attr('x1', lx)
       .attr('x2', lx)
       .attr('y1', this.yScale(Math.max(tMin, tSat)))
@@ -221,7 +225,7 @@ export class HXDiagram {
       .attr('stroke-dasharray', '7,4');
 
     const ly = this.yScale(tMax - (tMax - tMin) * 0.04);
-    this.comfortGroup.append('text')
+    this.sultrinessGroup.append('text')
       .attr('x', lx - 5)
       .attr('y', ly)
       .attr('text-anchor', 'end')
@@ -235,6 +239,11 @@ export class HXDiagram {
   setShowComfort(visible) {
     this.config.showComfort = visible;
     this.drawComfortZones();
+  }
+
+  setShowSultriness(visible) {
+    this.config.showSultriness = visible;
+    this.drawSultrinessLimit();
   }
 
   drawGrid() {

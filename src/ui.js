@@ -67,6 +67,7 @@ export function setupUI(diagram) {
   const tMaxInput = document.getElementById('t-max');
   const xMaxInput = document.getElementById('x-max');
   const showComfortCheckbox = document.getElementById('show-comfort');
+  const showSultrinessCheckbox = document.getElementById('show-sultriness');
   const pressureDisplay = document.getElementById('pressure-display');
   const btnUpdateConfig = document.getElementById('btn-update-config');
   const configHint = document.getElementById('config-hint');
@@ -120,14 +121,18 @@ export function setupUI(diagram) {
       tMax,
       xMax: readClamped(xMaxInput, 30, 'x max', 'g/kg', messages, writeBack),
       showComfort: showComfortCheckbox.checked,
+      showSultriness: showSultrinessCheckbox.checked,
     };
   }
 
   altitudeInput.addEventListener('input', updatePressureDisplay);
 
-  // Behaglichkeitszonen sofort ein-/ausblenden (kein „Diagramm aktualisieren" nötig)
+  // Overlays sofort ein-/ausblenden (kein „Diagramm aktualisieren" nötig)
   showComfortCheckbox.addEventListener('change', () => {
     diagram.setShowComfort(showComfortCheckbox.checked);
+  });
+  showSultrinessCheckbox.addEventListener('change', () => {
+    diagram.setShowSultriness(showSultrinessCheckbox.checked);
   });
 
   btnUpdateConfig.addEventListener('click', () => {
@@ -311,4 +316,5 @@ export function setupUI(diagram) {
   // Browser restaurieren Formularzustände beim Reload: Diagramm mit der
   // tatsächlichen Checkbox-Stellung abgleichen, nicht mit defaultConfig
   diagram.setShowComfort(showComfortCheckbox.checked);
+  diagram.setShowSultriness(showSultrinessCheckbox.checked);
 }

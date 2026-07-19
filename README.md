@@ -17,7 +17,7 @@ Interaktive Web-App zur Darstellung eines Mollier h,x-Diagramms für feuchte Luf
 - **Prozesslinien:** Automatische Verbindung zwischen Zustandspunkten
 - **Vollständige Zustandsberechnung:** Temperatur, relative/absolute Feuchte, Enthalpie, Taupunkt und Dichte
 - **Leistungsberechnung:** Massen- oder Volumenstrom eingeben (kg/s, kg/h, m³/s, m³/h); die App berechnet pro Prozessabschnitt Heiz-/Kühlleistung `Q = ṁ·Δh` (kW) und Be-/Entfeuchtungsleistung `ṁ·Δx` (kg/h) samt Gesamtbilanz
-- **Behaglichkeitszonen & Schwülegrenze:** Zuschaltbares Komfort-Overlay („behaglich" / „noch behaglich") nach der HSLU-edar-Referenz, ins h,x-Koordinatensystem transformiert, plus Schwülegrenze bei x = 11,5 g/kg (Leusden/Freymark)
+- **Behaglichkeitszonen & Schwülegrenze:** Separat zuschaltbare Overlays – Komfortzonen („behaglich" / „noch behaglich") nach der HSLU-edar-Referenz, ins h,x-Koordinatensystem transformiert, sowie die Schwülegrenze bei x = 11,5 g/kg (Leusden/Freymark)
 - **Design nach Seven-Air-Vorlage:** Monochromes Liniennetz, Helvetica-Beschriftung, alle Linien bis zum Diagrammrand
 - **Responsive:** Auf iPhone/iPad (unterhalb 900 px Breite) gestapeltes, scrollbares Layout mit dem Diagramm zuoberst; Zustandspunkte sind per Touch setz- und verschiebbar
 
@@ -94,7 +94,7 @@ Bei mehr als zwei Punkten wird zusätzlich die Gesamtbilanz über die ganze Proz
 
 ## Behaglichkeitszonen & Schwülegrenze
 
-Über die Checkbox **„Behaglichkeitszonen & Schwülegrenze"** (Panel „Konfiguration") lassen sich zwei Komfortzonen sowie die Schwülegrenze ein- und ausblenden:
+Im Panel „Konfiguration" lassen sich zwei Komfortzonen (Checkbox **„Behaglichkeitszonen anzeigen"**) und die Schwülegrenze (Checkbox **„Schwülegrenze anzeigen"**) unabhängig voneinander ein- und ausblenden:
 
 | Zone | Darstellung | Eckpunkte (T in °C / φ in %) |
 |---|---|---|
