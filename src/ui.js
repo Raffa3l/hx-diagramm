@@ -60,6 +60,7 @@ export function setupUI(diagram) {
   const phiGroup = document.getElementById('phi-input-group');
   const xGroup = document.getElementById('x-input-group');
   const btnAddPoint = document.getElementById('btn-add-point');
+  const addPointHint = document.getElementById('add-point-hint');
 
   const pointsList = document.getElementById('points-list');
   const btnClearPoints = document.getElementById('btn-clear-points');
@@ -112,6 +113,11 @@ export function setupUI(diagram) {
     }
   });
 
+  function showAddPointHint(message) {
+    addPointHint.textContent = message;
+    addPointHint.classList.toggle('hidden', !message);
+  }
+
   btnAddPoint.addEventListener('click', () => {
     const T = parseFloat(inputT.value);
     if (isNaN(T)) return;
@@ -123,12 +129,25 @@ export function setupUI(diagram) {
       const phi = parseFloat(inputPhi.value) / 100;
       if (isNaN(phi) || phi < 0 || phi > 1) return;
       x_gkg = humidityRatio(T, phi, config.pressure) * 1000;
-      if (!Number.isFinite(x_gkg)) return;
+      if (!Number.isFinite(x_gkg)) {
+        showAddPointHint('Bei dieser Temperatur ergibt die φ-Eingabe keine gültige Feuchte.');
+        return;
+      }
     } else {
       x_gkg = parseFloat(inputX.value);
       if (isNaN(x_gkg) || x_gkg < 0) return;
     }
 
+    // Nur Punkte im dargestellten Bereich zulassen: geclippte (unsichtbare) Punkte
+    // flossen sonst kommentarlos in Prozesslinie und Leistungsberechnung ein
+    if (T < config.tMin || T > config.tMax || x_gkg > config.xMax) {
+      showAddPointHint(
+        `Punkt liegt ausserhalb des Diagramms (T ${config.tMin} bis ${config.tMax} °C, x bis ${config.xMax} g/kg).`,
+      );
+      return;
+    }
+
+    showAddPointHint('');
     diagram.addStatePoint(T, x_gkg);
   });
 
@@ -247,4 +266,7 @@ export function setupUI(diagram) {
   populateFlowUnits();
   renderPointsList([]);
   renderPowerResults([]);
+  // Browser restaurieren Formularzustände beim Reload: Diagramm mit der
+  // tatsächlichen Checkbox-Stellung abgleichen, nicht mit defaultConfig
+  diagram.setShowComfort(showComfortCheckbox.checked);
 }

@@ -1,13 +1,13 @@
 # h,x-Diagramm für feuchte Luft
 
 [![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-blue.svg)](LICENSE)
-[![GitHub Pages](https://img.shields.io/badge/Demo-GitHub%20Pages-orange.svg)](https://raffa3l.github.io/hx-diagramm/)
+[![Live-Demo](https://img.shields.io/badge/Live--Demo-git.logicc.ch-00a19a.svg)](https://git.logicc.ch/hx-diagramm/)
 
 Interaktive Web-App zur Darstellung eines Mollier h,x-Diagramms für feuchte Luft. Läuft vollständig im Browser; kein Backend erforderlich.
 
 ![Screenshot](docs/screenshot.png)
 
-[Live-Demo](https://raffa3l.github.io/hx-diagramm/)
+[Live-Demo](https://git.logicc.ch/hx-diagramm/)
 
 ## Features
 
@@ -34,13 +34,13 @@ Interaktive Web-App zur Darstellung eines Mollier h,x-Diagramms für feuchte Luf
 ## Installation
 
 ```bash
-git clone https://github.com/raffa3l/hx-diagramm.git
+git clone https://github.com/Raffa3l/hx-diagramm.git
 cd hx-diagramm
 npm install
 npm run dev
 ```
 
-Die App ist dann unter `http://localhost:5173` erreichbar.
+Die App ist dann unter `http://localhost:5173/hx-diagramm/` erreichbar (Basispfad aus `vite.config.js`).
 
 ### Produktionsbuild
 

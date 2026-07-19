@@ -134,6 +134,11 @@ body {
   margin-top: 2px;
 }
 
+.hint-error {
+  color: var(--color-danger);
+  margin-top: 6px;
+}
+
 .hidden {
   display: none !important;
 }

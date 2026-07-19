@@ -641,10 +641,8 @@ export class HXDiagram {
         newX = Math.max(0, Math.min(self.config.xMax, newX));
         newT = Math.max(self.config.tMin, Math.min(self.config.tMax, newT));
 
+        // updatePointPosition → renderStatePoints feuert onPointsChanged bereits
         self.updatePointPosition(id, newT, newX);
-        if (self.callbacks.onPointsChanged) {
-          self.callbacks.onPointsChanged(self.statePoints);
-        }
       })
       .on('end', function () {
         d3.select(this).attr('opacity', 1);
