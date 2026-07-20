@@ -17,7 +17,7 @@ Interaktive Web-App zur Darstellung eines Mollier h,x-Diagramms für feuchte Luf
 - **Prozesslinien:** Automatische Verbindung zwischen Zustandspunkten
 - **Vollständige Zustandsberechnung:** Temperatur, relative/absolute Feuchte, Enthalpie, Taupunkt und Dichte
 - **Leistungsberechnung:** Massen- oder Volumenstrom eingeben (kg/s, kg/h, m³/s, m³/h); die App berechnet pro Prozessabschnitt Heiz-/Kühlleistung `Q = ṁ·Δh` (kW) und Be-/Entfeuchtungsleistung `ṁ·Δx` (kg/h) samt Gesamtbilanz
-- **Behaglichkeitszonen & Schwülegrenze:** Separat zuschaltbare Overlays – Komfortzonen („behaglich" / „noch behaglich") nach der HSLU-edar-Referenz, ins h,x-Koordinatensystem transformiert, sowie die Schwülegrenze bei x = 11,5 g/kg (Leusden/Freymark)
+- **Behaglichkeitszonen & Schwülegrenze:** Separat zuschaltbare Overlays – das historische Leusden/Freymark-Feld („behaglich" / „noch behaglich"), ins h,x-Koordinatensystem transformiert, sowie die Schwülegrenze bei x = 11,5 g/kg (siehe „Quellenlage" für Herkunft und Verifikationsstand)
 - **Design nach Seven-Air-Vorlage:** Monochromes Liniennetz, Helvetica-Beschriftung, alle Linien bis zum Diagrammrand
 - **Responsive:** Auf iPhone/iPad (unterhalb 900 px Breite) gestapeltes, scrollbares Layout mit dem Diagramm zuoberst; Zustandspunkte sind per Touch setz- und verschiebbar
 
@@ -92,18 +92,32 @@ Bei mehr als zwei Punkten wird zusätzlich die Gesamtbilanz über die ganze Proz
 
 **Konventionen:** Der Massenstrom ṁ ist auf trockene Luft bezogen (h und x sind pro kg trockene Luft definiert). Ein eingegebener Volumenstrom wird je Abschnitt mit der Dichte und Feuchte am Abschnittsanfang umgerechnet: `ṁ = V̇ · ρ / (1 + x)`.
 
-## Behaglichkeitszonen & Schwülegrenze
+## Behaglichkeitszonen & Schwülegrenze (Leusden/Freymark-Feld)
 
-Im Panel „Konfiguration" lassen sich zwei Komfortzonen (Checkbox **„Behaglichkeitszonen anzeigen"**) und die Schwülegrenze (Checkbox **„Schwülegrenze anzeigen"**) unabhängig voneinander ein- und ausblenden:
+Im Panel „Konfiguration" lassen sich zwei Komfortzonen des **Leusden/Freymark-Felds** (Checkbox **„Behaglichkeitszonen anzeigen"**) und die Schwülegrenze (Checkbox **„Schwülegrenze anzeigen"**) unabhängig voneinander ein- und ausblenden:
 
 | Zone | Darstellung | Eckpunkte (T in °C / φ in %) |
 |---|---|---|
 | behaglich | gelbgrün, 40 % Deckkraft | (19/38), (17.5/74), (22.5/65), (24/35) |
 | noch behaglich | orange, 25 % Deckkraft | (20/20), (17/40), (16/75), (17/85), (21.5/80), (25/60), (27/30), (25.5/20) |
 
-Zusätzlich wird die **Schwülegrenze** nach Leusden/Freymark als senkrechte, gestrichelte Linie bei **x = 11,5 g/kg** dargestellt; rechts davon wird die Luft als schwül empfunden. Die Linie gilt nur für ungesättigte Luft und endet deshalb unten an der Sättigungslinie (φ = 100 %, d.h. am druckabhängigen Taupunkt von 11,5 g/kg, bei 955 mbar ≈ 15,3 °C); darunter beginnt das Nebelgebiet. Bei x max < 11,5 g/kg liegt sie ausserhalb und wird nicht gezeichnet.
+Zusätzlich wird die **Schwülegrenze** als senkrechte, gestrichelte Linie bei **x = 11,5 g/kg** dargestellt; rechts davon wird die Luft als schwül empfunden. Die Linie gilt nur für ungesättigte Luft und endet deshalb unten an der Sättigungslinie (φ = 100 %, d.h. am druckabhängigen Taupunkt von 11,5 g/kg, bei 955 mbar ≈ 15,3 °C); darunter beginnt das Nebelgebiet. Bei x max < 11,5 g/kg liegt sie ausserhalb und wird nicht gezeichnet.
 
-Die Polygone stammen aus der [HSLU-edar-Referenz `comfortTempHum.Rmd`](https://github.com/hslu-ige-laes/edar/blob/master/partDataVis/comfortTempHum.Rmd) (dort in einem T/φ-Plot). In dieser App werden die Kanten linear in (T, φ) abgetastet und über die Psychrometrie φ→x ins h,x-Koordinatensystem transformiert; die Zonenform ist dadurch druckabhängig und passt zu den vorhandenen Zustandspunkten: Liegt ein Punkt in der Zone, ist der Luftzustand behaglich.
+### Quellenlage (Stand der Verifikation)
+
+Die Zonen-Eckpunkte stammen wörtlich aus der [HSLU-edar-Referenz `comfortTempHum.Rmd`](https://github.com/hslu-ige-laes/edar/blob/master/partDataVis/comfortTempHum.Rmd) (dort in einem T/φ-Plot; die Kanten werden hier linear in (T, φ) abgetastet und über φ→x ins h,x-System transformiert, wodurch die Zonenform druckabhängig wird). **Diese Quelle selbst nennt jedoch keine Norm, keinen Autor und keine Literaturangabe** – weder im Code noch im begleitenden Kursmaterial noch im zugehörigen R-Paket `redutils`; die Eckpunkte stehen dort als unbelegte Zahlenwerte.
+
+Form, Zweiteilung und Terminologie („behaglich" / „noch behaglich") entsprechen klar erkennbar dem in der deutschsprachigen Lüftungs-/Klimatechnik historisch etablierten **Leusden/Freymark-Feld**:
+
+> Leusden, F. v.; Freymark, H.: *Darstellung der Raumbehaglichkeit für den praktischen Gebrauch.* Gesundheits-Ingenieur 72 (1951), Heft 16, S. 271–273.
+
+Diese Originalpublikation von 1951 ist nicht frei online verfügbar; die **exakten Eckpunkte konnten daher nicht Ziffer für Ziffer gegen das Original verifiziert werden** – nur Form und Grössenordnung sind plausibilisiert (Wikipedia nennt für Behaglichkeit allgemein 18–24 °C / 35–75 % rF / x 5–12 g/kg, was sich mit der inneren „behaglich"-Zone von 19–24 °C / 35–74 % rF deckt, ohne Leusden/Freymark namentlich zu nennen oder zwei Zonen zu unterscheiden).
+
+**Abgleich mit Recknagel – Taschenbuch für Heizung + Klimatechnik, 77. Auflage (2015/2016):** Eine gezielte Volltextsuche in dieser umfassenden, aktuellen deutschsprachigen Fachreferenz ergab **keinen einzigen Treffer** für „Leusden", „Freymark" oder „Behaglichkeitsfeld". Das komplette Kapitel „1.2.2 Thermische Behaglichkeit" (S. 145–153) arbeitet stattdessen ausschliesslich mit zwei anderen Methoden: dem adaptiven Modell nach **DIN EN 15251** (behagliche operative Temperatur vs. gleitender Aussentemperatur-Mittelwert, für frei belüftete Gebäude) und dem **PMV/PPD-Index nach DIN EN ISO 7730** (bei fixer Luftfeuchte von 50 %, keine T/Feuchte-Zone). Der Recknagel merkt zudem an, dass **DIN 1946-2** – die ältere Norm, die historisch das klassische Leusden/Freymark-Feld enthielt – durch DIN EN 13779 abgelöst wurde. Das Leusden/Freymark-Feld ist damit ein **historisches, in der aktuellen Fachnorm-Generation nicht mehr weitergeführtes** Konzept.
+
+Der Wert **x = 11,5 g/kg** für die Schwülegrenze ist unabhängig über die deutsche Bundesanstalt für Arbeitsschutz und Arbeitsmedizin (BAuA) belegt; im Recknagel kommt der Begriff „Schwülegrenze" nur zweimal vor, ohne den Wert 11,5 g/kg zu nennen (einmal ohne Zahl, einmal mit 14,3 g/kg im Sonderkontext Schwimmhallenluft).
+
+**Einordnung:** EN ISO 7730 und ASHRAE 55 sind die heute massgeblichen Normen für thermische Behaglichkeit, arbeiten aber methodisch grundlegend anders (PMV/PPD-Index nach Fanger, unter Einbezug von Bekleidung, Aktivität, Luftgeschwindigkeit und Strahlungstemperatur) und definieren keine einfache T/x-Zone im Mollier-Diagramm. Beide Overlays dieser App zeigen das **Leusden/Freymark-Feld als historisches Orientierungskonzept der klassischen HLK-Fachliteratur**, nicht als normkonformen Nachweis nach heutigem ISO 7730/ASHRAE 55/DIN EN 15251.
 
 ## Physikalische Grundlagen
 
