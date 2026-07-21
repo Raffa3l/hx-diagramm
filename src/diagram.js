@@ -41,8 +41,10 @@ const COMFORT_ZONES = [
   },
 ];
 
-// Schwülegrenze nach Leusden/Freymark: rechts von x = 11.5 g/kg
-// wird die Luft als schwül empfunden (senkrechte Linie im h,x-Diagramm)
+// Schwülegrenze nach BAuA/ASR A3.5 (nicht aus Leusden/Freymark): rechts von
+// x = 11.5 g/kg wird die Luft als schwül empfunden (senkrechte Linie im h,x-Diagramm).
+// Vereinfachendes Konzept – SN EN 16798-1/SIA 382.711 kennt keine feste Grenze
+// (siehe README „Quellenlage").
 const SULTRINESS_LIMIT_X = 11.5; // g/kg
 const SULTRINESS_COLOR = '#c2410c';
 
