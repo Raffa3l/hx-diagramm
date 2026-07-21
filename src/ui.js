@@ -159,12 +159,26 @@ export function setupUI(diagram) {
     diagram.setShowPmv(showPmvCheckbox.checked);
   });
 
-  // PMV-Parameter wirken sofort; ohne Write-Back, damit beim Tippen nicht
-  // in das Feld hineinkorrigiert wird (wie bei der Höhe ü. M.)
+  // PMV-Parameter wirken ohne Write-Back, damit beim Tippen nicht in das Feld
+  // hineinkorrigiert wird (wie bei der Höhe ü. M.).
+  // Entprellt, weil Zwischenstände beim Tippen physikalisch gültig, aber extrem
+  // sind: t_r geht etwa gleich stark ein wie die Lufttemperatur, „2" auf dem Weg
+  // zu „20" verschiebt die Zonen um ~18 K an den oberen Diagrammrand.
+  let pmvTimer = null;
   for (const input of [pmvCloInput, pmvMetInput, pmvVelInput, pmvTrInput]) {
     input.addEventListener('input', () => {
+      clearTimeout(pmvTimer);
+      pmvTimer = setTimeout(() => {
+        const messages = [];
+        diagram.setPmvParams(getPmvParams(messages, false));
+        showConfigHint(messages);
+      }, 400);
+    });
+    // Verlassen des Feldes wirkt sofort und schreibt geklemmte Werte zurück
+    input.addEventListener('change', () => {
+      clearTimeout(pmvTimer);
       const messages = [];
-      diagram.setPmvParams(getPmvParams(messages, false));
+      diagram.setPmvParams(getPmvParams(messages, true));
       showConfigHint(messages);
     });
   }

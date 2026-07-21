@@ -123,8 +123,17 @@ body {
   accent-color: var(--color-primary);
 }
 
+/* Eingabefelder einer Zeile unten bündig, auch wenn ein Label zweizeilig umbricht
+   (z.B. „Luftgeschw. (m/s)" neben „t_r (°C)") */
 .form-row .form-group {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row .form-group input,
+.form-row .form-group select {
+  margin-top: auto;
 }
 
 /* Aufklappbare Untergruppe innerhalb eines Panels (z.B. PMV-Parameter),
@@ -136,12 +145,32 @@ body {
   margin-bottom: 10px;
 }
 
+/* Eigener Marker statt des nativen Dreiecks: das native ragt bei
+   list-style-position über den Rahmen der Box hinaus */
 .subpanel summary {
   cursor: pointer;
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-text-muted);
-  list-style-position: outside;
+  list-style: none;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.subpanel summary::-webkit-details-marker {
+  display: none;
+}
+
+.subpanel summary::before {
+  content: '▸';
+  flex: none;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.subpanel[open] summary::before {
+  content: '▾';
 }
 
 .subpanel summary:hover {
@@ -152,15 +181,16 @@ body {
   margin-bottom: 8px;
 }
 
-.subpanel .form-group:last-of-type {
-  margin-bottom: 0;
-}
-
 .hint {
   display: block;
   font-size: 0.75rem;
   color: var(--color-text-muted);
   margin-top: 2px;
+}
+
+/* Erläuterung unter einer Checkbox, bündig zum Beschriftungstext */
+.hint-indent {
+  margin-left: 19px;
 }
 
 .hint-error {

@@ -42,17 +42,25 @@
           <label for="x-max">x max (g/kg)</label>
           <input type="number" id="x-max" value="30" min="10" max="50" step="5">
         </div>
+        <button id="btn-update-config" class="btn btn-primary">Diagramm aktualisieren</button>
+        <span class="hint hint-error hidden" id="config-hint"></span>
+      </section>
+
+      <section class="panel">
+        <h2>Behaglichkeit</h2>
         <div class="form-group form-check">
           <label for="show-comfort">
             <input type="checkbox" id="show-comfort">
             Behaglichkeitszonen anzeigen
           </label>
+          <span class="hint hint-indent">Leusden/Freymark-Feld (historisch, 1951)</span>
         </div>
         <div class="form-group form-check">
           <label for="show-sultriness">
             <input type="checkbox" id="show-sultriness">
             Schwülegrenze anzeigen
           </label>
+          <span class="hint hint-indent">x = 11,5 g/kg nach BAuA, ASR A3.5</span>
         </div>
         <details class="subpanel">
           <summary>Behaglichkeit nach EN ISO 7730 (PMV)</summary>
@@ -61,6 +69,7 @@
               <input type="checkbox" id="show-pmv">
               PMV-Kategorien anzeigen
             </label>
+            <span class="hint hint-indent">Kategorien nach SN EN 16798-1: I |PMV| ≤ 0,2 · II ≤ 0,5 · III ≤ 0,7</span>
           </div>
           <div class="form-row">
             <div class="form-group">
@@ -82,10 +91,8 @@
               <input type="number" id="pmv-tr" placeholder="= T" min="-40" max="80" step="0.5">
             </div>
           </div>
-          <span class="hint">Leeres t<sub>r</sub>: Strahlungstemperatur = Lufttemperatur. Kategorien nach SN EN 16798-1: I |PMV| ≤ 0,2 · II ≤ 0,5 · III ≤ 0,7.</span>
+          <span class="hint">Leeres t<sub>r</sub>: Strahlungstemperatur = Lufttemperatur. t<sub>r</sub> wirkt etwa 1:1 wie die Lufttemperatur (Operativtemperatur).</span>
         </details>
-        <button id="btn-update-config" class="btn btn-primary">Diagramm aktualisieren</button>
-        <span class="hint hint-error hidden" id="config-hint"></span>
       </section>
 
       <section class="panel">

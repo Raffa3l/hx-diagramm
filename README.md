@@ -95,7 +95,7 @@ Bei mehr als zwei Punkten wird zusätzlich die Gesamtbilanz über die ganze Proz
 
 ## Behaglichkeitszonen & Schwülegrenze (Leusden/Freymark-Feld)
 
-Im Panel „Konfiguration" lassen sich zwei Komfortzonen des **Leusden/Freymark-Felds** (Checkbox **„Behaglichkeitszonen anzeigen"**) und die Schwülegrenze (Checkbox **„Schwülegrenze anzeigen"**) unabhängig voneinander ein- und ausblenden:
+Alle Behaglichkeits-Overlays sind im eigenen Panel **„Behaglichkeit"** zusammengefasst. Dort lassen sich zwei Komfortzonen des **Leusden/Freymark-Felds** (Checkbox **„Behaglichkeitszonen anzeigen"**) und die Schwülegrenze (Checkbox **„Schwülegrenze anzeigen"**) unabhängig voneinander ein- und ausblenden:
 
 | Zone | Darstellung | Eckpunkte (T in °C / φ in %) |
 |---|---|---|
@@ -120,7 +120,7 @@ Der dargestellte feste Wert **x = 11,5 g/kg** für die Schwülegrenze stützt si
 
 ## PMV-Behaglichkeitskategorien (EN ISO 7730 / SN EN 16798-1)
 
-Als normbasierte Ergänzung zum historischen Leusden/Freymark-Feld lässt sich im aufklappbaren Feld **„Behaglichkeit nach EN ISO 7730 (PMV)"** ein Overlay der Behaglichkeitskategorien einblenden. Anders als das Leusden/Freymark-Feld sind das **keine festen Eckpunkte**, sondern Höhenlinien des PMV-Felds: Für jeden Gitterpunkt (T, x) wird der PMV nach dem Iterationsverfahren aus EN ISO 7730 Anhang D berechnet und anschliessend konturiert.
+Als normbasierte Ergänzung zum historischen Leusden/Freymark-Feld lässt sich im Panel „Behaglichkeit" unter dem aufklappbaren Feld **„Behaglichkeit nach EN ISO 7730 (PMV)"** ein Overlay der Behaglichkeitskategorien einblenden. Anders als das Leusden/Freymark-Feld sind das **keine festen Eckpunkte**, sondern Höhenlinien des PMV-Felds: Für jeden Gitterpunkt (T, x) wird der PMV nach dem Iterationsverfahren aus EN ISO 7730 Anhang D berechnet und anschliessend konturiert.
 
 | Kategorie (SN EN 16798-1) | Bedingung | PPD |
 |---|---|---|
@@ -140,6 +140,8 @@ Ein Band |PMV| ≤ Grenzwert entsteht aus den beiden Konturen −Grenzwert und +
 | t_r | = T | mittlere Strahlungstemperatur; leer bedeutet t_r = Lufttemperatur |
 
 Weil das Ergebnis vollständig von diesen vier Grössen abhängt, werden sie direkt im Diagramm unter der Zonenbeschriftung mitgeführt.
+
+**Zur Strahlungstemperatur:** t_r geht etwa gleich stark in den PMV ein wie die Lufttemperatur — das ist der Operativtemperatur-Effekt (t_op ≈ (t_a + t_r)/2). Gemessen an der Implementierung beträgt die Verschiebung der Neutraltemperatur **1,01 K je K**: Bei t_r = 20 °C liegt sie bei 30,6 °C, bei t_r = 25 °C bei 25,5 °C, bei t_r = 30 °C bei 20,9 °C. Ein niedrig eingestelltes t_r schiebt die Zonen also weit nach oben; bei t_r = 2 °C läge die Neutraltemperatur bereits bei 44,3 °C. Das ist physikalisch korrekt, sieht aber nach einem Fehler aus — die Eingabe ist deshalb um 400 ms entprellt, damit Zwischenstände beim Tippen (die „2" auf dem Weg zu „20") nicht gerendert werden.
 
 ### Darstellung und Einordnung
 
