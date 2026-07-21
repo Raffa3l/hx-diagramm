@@ -101,6 +101,65 @@ export function density(T, x, p, xVapor = x) {
   return p / (R_DRY * Tabs) * (1 + x) / (1 + RV_RD * xVapor);
 }
 
+// --- Thermische Behaglichkeit: PMV/PPD nach EN ISO 7730 ---
+// Iterationsalgorithmus nach EN ISO 7730 Anhang D (gleichlautend in ASHRAE 55).
+// Die Bekleidungsoberflächentemperatur t_cl folgt aus einer Fixpunktiteration,
+// danach wird die Wärmebilanz des Menschen ausgewertet.
+// ta  Lufttemperatur (°C)          tr   mittlere Strahlungstemperatur (°C)
+// vel relative Luftgeschwindigkeit (m/s)  pa Wasserdampf-Partialdruck (Pa)
+// clo Bekleidungswiderstand (clo)  met  Energieumsatz (met)  wme äussere Arbeit (met)
+// Rückgabe: PMV (−3 kalt … +3 heiss) oder NaN, wenn die Iteration nicht konvergiert.
+export function pmv(ta, tr, vel, pa, clo, met, wme = 0) {
+  const icl = 0.155 * clo;  // m²K/W  Bekleidungswiderstand in SI
+  const m = met * 58.15;    // W/m²   Energieumsatz
+  const mw = m - wme * 58.15;
+
+  // Bekleidungsflächenfaktor und erzwungene Konvektion
+  const fcl = icl <= 0.078 ? 1 + 1.29 * icl : 1.05 + 0.645 * icl;
+  const hcf = 12.1 * Math.sqrt(vel);
+
+  const taa = ta + 273;
+  const tra = tr + 273;
+
+  const p1 = icl * fcl;
+  const p2 = p1 * 3.96;
+  const p3 = p1 * 100;
+  const p4 = p1 * taa;
+  const p5 = 308.7 - 0.028 * mw + p2 * Math.pow(tra / 100, 4);
+
+  // Startwert nach ISO 7730; xn/xf sind t_cl in 100-K-Einheiten
+  const tcla = taa + (35.5 - ta) / (3.5 * (6.45 * icl + 0.1));
+  let xn = tcla / 100;
+  let xf = tcla / 50;
+  let hc = hcf;
+  let iterations = 0;
+
+  while (Math.abs(xn - xf) > 0.00015) {
+    xf = (xf + xn) / 2;
+    const hcn = 2.38 * Math.pow(Math.abs(100 * xf - taa), 0.25);  // freie Konvektion
+    hc = hcf > hcn ? hcf : hcn;
+    xn = (p5 + p4 * hc - p2 * Math.pow(xf, 4)) / (100 + p3 * hc);
+    if (++iterations > 150) return NaN;
+  }
+
+  const tcl = 100 * xn - 273;
+
+  const hl1 = 3.05 * 0.001 * (5733 - 6.99 * mw - pa);   // Wasserdampfdiffusion durch die Haut
+  const hl2 = mw > 58.15 ? 0.42 * (mw - 58.15) : 0;      // Schweissverdunstung
+  const hl3 = 1.7 * 0.00001 * m * (5867 - pa);           // latente Atmung
+  const hl4 = 0.0014 * m * (34 - ta);                    // trockene Atmung
+  const hl5 = 3.96 * fcl * (Math.pow(xn, 4) - Math.pow(tra / 100, 4));  // Strahlung
+  const hl6 = fcl * hc * (tcl - ta);                     // Konvektion
+
+  const ts = 0.303 * Math.exp(-0.036 * m) + 0.028;       // Empfindlichkeitskoeffizient
+  return ts * (mw - hl1 - hl2 - hl3 - hl4 - hl5 - hl6);
+}
+
+// Vorausgesagter Prozentsatz Unzufriedener (%) aus PMV, EN ISO 7730
+export function ppd(pmvValue) {
+  return 100 - 95 * Math.exp(-0.03353 * Math.pow(pmvValue, 4) - 0.2179 * Math.pow(pmvValue, 2));
+}
+
 // Zustandsgrössen aus T und x berechnen.
 // Erkennt Übersättigung (Nebelgebiet, x > x_s): dort gilt φ = 100 %, T_d = T,
 // die Enthalpie enthält den Flüssigwasserterm und die Dichte rechnet nur x_s als Dampf.

@@ -10,6 +10,10 @@ const defaultConfig = {
   xMax: 30,
   showComfort: false,
   showSultriness: false,
+  showPmv: false,
+  // EN ISO 7730: leichte Sommerbekleidung, sitzende Tätigkeit, ruhende Luft,
+  // t_r = null bedeutet Strahlungstemperatur = Lufttemperatur
+  pmvParams: { clo: 0.5, met: 1.2, vel: 0.1, tr: null },
 };
 
 const diagram = new HXDiagram(

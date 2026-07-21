@@ -127,6 +127,35 @@ body {
   flex: 1;
 }
 
+/* Aufklappbare Untergruppe innerhalb eines Panels (z.B. PMV-Parameter),
+   hält selten genutzte Eingaben aus dem Standard-Layout heraus */
+.subpanel {
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 6px 8px;
+  margin-bottom: 10px;
+}
+
+.subpanel summary {
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  list-style-position: outside;
+}
+
+.subpanel summary:hover {
+  color: var(--color-primary);
+}
+
+.subpanel[open] summary {
+  margin-bottom: 8px;
+}
+
+.subpanel .form-group:last-of-type {
+  margin-bottom: 0;
+}
+
 .hint {
   display: block;
   font-size: 0.75rem;

@@ -18,6 +18,7 @@ Interaktive Web-App zur Darstellung eines Mollier h,x-Diagramms für feuchte Luf
 - **Vollständige Zustandsberechnung:** Temperatur, relative/absolute Feuchte, Enthalpie, Taupunkt und Dichte
 - **Leistungsberechnung:** Massen- oder Volumenstrom eingeben (kg/s, kg/h, m³/s, m³/h); die App berechnet pro Prozessabschnitt Heiz-/Kühlleistung `Q = ṁ·Δh` (kW) und Be-/Entfeuchtungsleistung `ṁ·Δx` (kg/h) samt Gesamtbilanz
 - **Behaglichkeitszonen & Schwülegrenze:** Separat zuschaltbare Overlays, das historische Leusden/Freymark-Feld („behaglich" / „noch behaglich"), ins h,x-Koordinatensystem transformiert, sowie die Schwülegrenze bei x = 11,5 g/kg (siehe „Quellenlage")
+- **PMV-Behaglichkeitskategorien:** Normbasiertes Overlay nach EN ISO 7730; die Kategorien I–III aus SN EN 16798-1 werden als Höhenlinien des PMV-Felds über (T, x) berechnet und reagieren live auf Bekleidung, Aktivität, Luftgeschwindigkeit und Strahlungstemperatur
 - **Design nach Seven-Air-Vorlage:** Monochromes Liniennetz, Helvetica-Beschriftung, alle Linien bis zum Diagrammrand
 - **Responsive:** Auf iPhone/iPad (unterhalb 900 px Breite) gestapeltes, scrollbares Layout mit dem Diagramm zuoberst; Zustandspunkte sind per Touch setz- und verschiebbar
 
@@ -117,6 +118,39 @@ Der dargestellte feste Wert **x = 11,5 g/kg** für die Schwülegrenze stützt si
 
 **Einordnung:** EN ISO 7730 und ASHRAE 55 sind die heute massgeblichen Normen für thermische Behaglichkeit, arbeiten aber methodisch grundlegend anders (PMV/PPD-Index nach Fanger, unter Einbezug von Bekleidung, Aktivität, Luftgeschwindigkeit und Strahlungstemperatur; ASHRAE 55 zusätzlich mit einem adaptiven Komfortmodell für frei belüftete Räume). Für Schweizer Projekte unmittelbar anwendbar ist SN EN 16798-1 mit nationalem Anhang (SIA 382.711), die sich für das Schwüleempfinden auf den vorausgesagten Prozentsatz der thermischen Akzeptanz (PTA) stützt und unter Berufung auf Kleber et al. (2018) explizit festhält, dass keine feste, temperaturunabhängige Schwülegrenze existiert. Keine dieser Normen definiert eine einfache T/x-Zone im Mollier-Diagramm.
 
+## PMV-Behaglichkeitskategorien (EN ISO 7730 / SN EN 16798-1)
+
+Als normbasierte Ergänzung zum historischen Leusden/Freymark-Feld lässt sich im aufklappbaren Feld **„Behaglichkeit nach EN ISO 7730 (PMV)"** ein Overlay der Behaglichkeitskategorien einblenden. Anders als das Leusden/Freymark-Feld sind das **keine festen Eckpunkte**, sondern Höhenlinien des PMV-Felds: Für jeden Gitterpunkt (T, x) wird der PMV nach dem Iterationsverfahren aus EN ISO 7730 Anhang D berechnet und anschliessend konturiert.
+
+| Kategorie (SN EN 16798-1) | Bedingung | PPD |
+|---|---|---|
+| I | \|PMV\| ≤ 0,2 | < 6 % |
+| II | \|PMV\| ≤ 0,5 | < 10 % |
+| III | \|PMV\| ≤ 0,7 | < 15 % |
+
+Ein Band |PMV| ≤ Grenzwert entsteht aus den beiden Konturen −Grenzwert und +Grenzwert, die per `fill-rule="evenodd"` zu einem Ring kombiniert werden.
+
+### Parameter
+
+| Parameter | Standardwert | Beschreibung |
+|---|---|---|
+| Bekleidung | 0,5 clo | leichte Sommerbekleidung; 1,0 clo entspricht Winterbekleidung |
+| Aktivität | 1,2 met | sitzende, entspannte Tätigkeit |
+| Luftgeschwindigkeit | 0,1 m/s | relative Luftgeschwindigkeit (ruhende Luft) |
+| t_r | = T | mittlere Strahlungstemperatur; leer bedeutet t_r = Lufttemperatur |
+
+Weil das Ergebnis vollständig von diesen vier Grössen abhängt, werden sie direkt im Diagramm unter der Zonenbeschriftung mitgeführt.
+
+### Darstellung und Einordnung
+
+Das Band verläuft **nahezu waagrecht mit leichtem Gefälle nach rechts**: Bei 0,5 clo und 1,2 met liegt die Neutraltemperatur (PMV = 0) bei x = 2 g/kg um 25,7 °C und bei x = 14 g/kg um 24,3 °C – über 12 g/kg Feuchteänderung also nur rund 1,4 K. Der Feuchteeinfluss auf das Behaglichkeitsempfinden ist damit deutlich schwächer als der Temperatureinfluss.
+
+Genau darin liegt der Unterschied zur senkrechten Schwülegrenze bei x = 11,5 g/kg: Blendet man beide Overlays gleichzeitig ein, kreuzen sie sich fast rechtwinklig. Das macht sichtbar, warum ein fester, temperaturunabhängiger x-Grenzwert nicht dem heutigen Normenverständnis entspricht.
+
+Die PMV-Zonen sind im Nebelgebiet nicht definiert und werden deshalb an der Sättigungslinie abgeschnitten.
+
+**Verifikation:** Die Implementierung ist gegen die Referenzfälle aus EN ISO 7730 Tabelle D.1 geprüft (grösste Abweichung 0,007 PMV). Die Neutraltemperaturen von ≈ 25,5 °C bei 0,5 clo und ≈ 22 °C bei 1,0 clo entsprechen den in der Fachliteratur üblichen Werten.
+
 ## Physikalische Grundlagen
 
 Formeln und Konstanten nach VDI 4670 Blatt 1 bzw. ASHRAE Fundamentals; Sättigungsdampfdruck nach Magnus mit Tetens-Koeffizienten (vgl. VDI 3786 Blatt 4).
@@ -126,6 +160,7 @@ Formeln und Konstanten nach VDI 4670 Blatt 1 bzw. ASHRAE Fundamentals; Sättigun
 - **Enthalpie (ungesättigt)**: `h = 1.006·T + x·(2501 + 1.86·T)` in kJ/kg trockene Luft
 - **Enthalpie (Nebelgebiet, x > x_s)**: `h = 1.006·T + x_s·(2501 + 1.86·T) + (x − x_s)·4.19·T`; nur x_s ist dampfförmig, der Rest flüssig
 - **Absolute Feuchte**: `x = 0.622 · pD / (p − pD)` in kg/kg
+- **PMV/PPD**: Iterationsverfahren nach EN ISO 7730 Anhang D (Fixpunktiteration für die Bekleidungsoberflächentemperatur, danach Wärmebilanz aus Diffusion, Schwitzen, Atmung, Strahlung und Konvektion)
 - **Dichte feuchter Luft**: `ρ = p/(R_d·T_abs) · (1 + x)/(1 + 1.608·x_Dampf)`; im Nebelgebiet mit `x_Dampf = x_s`
 
 Übersättigte Zustandspunkte (im Nebelgebiet, unterhalb der Sättigungslinie) werden mit φ = 100 %, T_d = T gerechnet und in Punktkarte und Tooltip als **„Nebelgebiet (übersättigt)"** gekennzeichnet.

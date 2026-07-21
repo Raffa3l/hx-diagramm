@@ -68,6 +68,11 @@ export function setupUI(diagram) {
   const xMaxInput = document.getElementById('x-max');
   const showComfortCheckbox = document.getElementById('show-comfort');
   const showSultrinessCheckbox = document.getElementById('show-sultriness');
+  const showPmvCheckbox = document.getElementById('show-pmv');
+  const pmvCloInput = document.getElementById('pmv-clo');
+  const pmvMetInput = document.getElementById('pmv-met');
+  const pmvVelInput = document.getElementById('pmv-vel');
+  const pmvTrInput = document.getElementById('pmv-tr');
   const pressureDisplay = document.getElementById('pressure-display');
   const btnUpdateConfig = document.getElementById('btn-update-config');
   const configHint = document.getElementById('config-hint');
@@ -88,6 +93,20 @@ export function setupUI(diagram) {
   const flowValue = document.getElementById('flow-value');
   const flowUnit = document.getElementById('flow-unit');
   const powerResults = document.getElementById('power-results');
+
+  // PMV-Parameter nach EN ISO 7730; leeres t_r bedeutet „Strahlungstemperatur = T"
+  // und wird als null weitergereicht (das Diagramm setzt dann t_r = t_a je Gitterpunkt).
+  function getPmvParams(messages = [], writeBack = false) {
+    const trRaw = parseFloat(pmvTrInput.value);
+    return {
+      clo: readClamped(pmvCloInput, 0.5, 'Bekleidung', 'clo', messages, writeBack),
+      met: readClamped(pmvMetInput, 1.2, 'Aktivität', 'met', messages, writeBack),
+      vel: readClamped(pmvVelInput, 0.1, 'Luftgeschwindigkeit', 'm/s', messages, writeBack),
+      tr: Number.isFinite(trRaw)
+        ? readClamped(pmvTrInput, trRaw, 't_r', '°C', messages, writeBack)
+        : null,
+    };
+  }
 
   function showConfigHint(messages) {
     configHint.textContent = messages.join(' ');
@@ -122,6 +141,8 @@ export function setupUI(diagram) {
       xMax: readClamped(xMaxInput, 30, 'x max', 'g/kg', messages, writeBack),
       showComfort: showComfortCheckbox.checked,
       showSultriness: showSultrinessCheckbox.checked,
+      showPmv: showPmvCheckbox.checked,
+      pmvParams: getPmvParams(messages, writeBack),
     };
   }
 
@@ -134,6 +155,19 @@ export function setupUI(diagram) {
   showSultrinessCheckbox.addEventListener('change', () => {
     diagram.setShowSultriness(showSultrinessCheckbox.checked);
   });
+  showPmvCheckbox.addEventListener('change', () => {
+    diagram.setShowPmv(showPmvCheckbox.checked);
+  });
+
+  // PMV-Parameter wirken sofort; ohne Write-Back, damit beim Tippen nicht
+  // in das Feld hineinkorrigiert wird (wie bei der Höhe ü. M.)
+  for (const input of [pmvCloInput, pmvMetInput, pmvVelInput, pmvTrInput]) {
+    input.addEventListener('input', () => {
+      const messages = [];
+      diagram.setPmvParams(getPmvParams(messages, false));
+      showConfigHint(messages);
+    });
+  }
 
   btnUpdateConfig.addEventListener('click', () => {
     const messages = [];
@@ -315,6 +349,8 @@ export function setupUI(diagram) {
   renderPowerResults([]);
   // Browser restaurieren Formularzustände beim Reload: Diagramm mit der
   // tatsächlichen Checkbox-Stellung abgleichen, nicht mit defaultConfig
+  diagram.setPmvParams(getPmvParams());
   diagram.setShowComfort(showComfortCheckbox.checked);
   diagram.setShowSultriness(showSultrinessCheckbox.checked);
+  diagram.setShowPmv(showPmvCheckbox.checked);
 }

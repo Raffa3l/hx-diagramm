@@ -48,6 +48,21 @@ const COMFORT_ZONES = [
 const SULTRINESS_LIMIT_X = 11.5; // g/kg
 const SULTRINESS_COLOR = '#c2410c';
 
+// Behaglichkeitskategorien nach EN ISO 7730 / SN EN 16798-1, über den PMV definiert.
+// Anders als das Leusden/Freymark-Feld sind das keine festen Eckpunkte, sondern
+// Höhenlinien des PMV-Felds über (T, x) – sie verschieben sich mit clo, met, v und t_r.
+// Farbe bewusst Petrol (UI-Akzent): unterscheidet die normbasierten Zonen optisch
+// vom historischen (orange/gelbgrünen) Behaglichkeitsfeld.
+const PMV_CATEGORIES = [
+  { name: 'III', limit: 0.7, fill: 'rgba(0, 161, 154, 0.09)' },
+  { name: 'II', limit: 0.5, fill: 'rgba(0, 161, 154, 0.11)' },
+  { name: 'I', limit: 0.2, fill: 'rgba(0, 161, 154, 0.16)' },
+];
+const PMV_COLOR = '#00807a';
+// Auflösung des PMV-Gitters für die Konturierung (Rechenzeit ~10 ms)
+const PMV_GRID_NX = 100;
+const PMV_GRID_NY = 90;
+
 export class HXDiagram {
   constructor(container, config, callbacks = {}) {
     this.container = container;
@@ -74,8 +89,9 @@ export class HXDiagram {
     const plotW = this.width - this.margin.left - this.margin.right;
     const plotH = this.height - this.margin.top - this.margin.bottom;
 
-    this.svg.append('defs')
-      .append('clipPath')
+    const defs = this.svg.append('defs');
+
+    defs.append('clipPath')
       .attr('id', 'plot-clip')
       .append('rect')
       .attr('x', this.margin.left)
@@ -83,12 +99,23 @@ export class HXDiagram {
       .attr('width', plotW)
       .attr('height', plotH);
 
+    // Zweiter Clip nur für die PMV-Zonen: PMV ist im Nebelgebiet nicht definiert,
+    // die Konturen dürfen deshalb nicht über die Sättigungslinie hinauslaufen.
+    this.unsaturatedClip = defs.append('clipPath')
+      .attr('id', 'unsaturated-clip')
+      .append('path');
+
     this.gridGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
     this.enthalpyGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
     this.phiGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
     this.fogGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
     this.comfortGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
     this.sultrinessGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
+    // Verschachtelt: aussen Rahmen-Clip, innen Sättigungs-Clip
+    this.pmvGroup = this.svg.append('g')
+      .attr('clip-path', 'url(#plot-clip)')
+      .append('g')
+      .attr('clip-path', 'url(#unsaturated-clip)');
     this.satGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
     this.processGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
     this.pointsGroup = this.svg.append('g').attr('clip-path', 'url(#plot-clip)');
@@ -142,6 +169,7 @@ export class HXDiagram {
     this.drawSaturationCurve();
     this.drawComfortZones();
     this.drawSultrinessLimit();
+    this.drawPmvZones();
     this.drawAxes();
     this.drawTitle();
   }
@@ -236,6 +264,146 @@ export class HXDiagram {
       .attr('fill', SULTRINESS_COLOR)
       .attr('transform', `rotate(-90, ${lx - 5}, ${ly})`)
       .text('Schwülegrenze (x = 11,5 g/kg)');
+  }
+
+  // Clip-Pfad auf das ungesättigte Gebiet: links x = 0, rechts die Sättigungslinie
+  // (bzw. der Rahmen, wo x_s > x max liegt). Wird vor jedem PMV-Rendern neu gesetzt,
+  // weil er von tMin/tMax/xMax und vom Druck abhängt.
+  updateUnsaturatedClip() {
+    const { tMin, tMax, xMax, pressure } = this.config;
+    const steps = 120;
+    const edge = [];
+    for (let i = 0; i <= steps; i++) {
+      const T = tMin + (i / steps) * (tMax - tMin);
+      const xs = psy.humidityRatio(T, 1, pressure) * 1000;
+      const x = Number.isFinite(xs) ? Math.min(xMax, xs) : xMax;
+      edge.push(`L${this.xScale(x)},${this.yScale(T)}`);
+    }
+    this.unsaturatedClip.attr(
+      'd',
+      `M${this.xScale(0)},${this.yScale(tMin)}${edge.join('')}L${this.xScale(0)},${this.yScale(tMax)}Z`,
+    );
+  }
+
+  // Behaglichkeitskategorien nach EN ISO 7730 / SN EN 16798-1 als PMV-Höhenlinien.
+  // PMV wird auf einem Gitter über (x, T) ausgewertet und mit d3.contours konturiert;
+  // ein Band |PMV| ≤ limit entsteht aus den Konturen −limit und +limit, die mit
+  // fill-rule „evenodd" zu einem Ring kombiniert werden (die +limit-Kontur liegt
+  // vollständig innerhalb der −limit-Kontur).
+  drawPmvZones() {
+    this.pmvGroup.selectAll('*').remove();
+    if (!this.config.showPmv) return;
+
+    const { tMin, tMax, xMax, pressure, pmvParams } = this.config;
+    const { clo, met, vel, tr } = pmvParams;
+
+    this.updateUnsaturatedClip();
+
+    const xAt = i => (i / (PMV_GRID_NX - 1)) * xMax;
+    const tAt = j => tMin + (j / (PMV_GRID_NY - 1)) * (tMax - tMin);
+
+    // PMV bei (T, x); im Nebelgebiet wird pa auf den Sättigungsdruck begrenzt,
+    // damit die Iteration endliche Werte liefert – dieser Bereich wird weggeclippt.
+    const pmvAt = (T, x_gkg) => {
+      const pa = Math.min(psy.partialPressure(x_gkg / 1000, pressure), psy.saturationPressure(T));
+      return psy.pmv(T, tr === null ? T : tr, vel, pa, clo, met);
+    };
+
+    const values = new Float64Array(PMV_GRID_NX * PMV_GRID_NY);
+    for (let j = 0; j < PMV_GRID_NY; j++) {
+      const T = tAt(j);
+      for (let i = 0; i < PMV_GRID_NX; i++) {
+        const value = pmvAt(T, xAt(i));
+        // Nicht konvergiert (nur an den Rändern des Gültigkeitsbereichs):
+        // als „sehr heiss" behandeln, damit die Konturen dort nicht hineinlaufen
+        values[j * PMV_GRID_NX + i] = Number.isFinite(value) ? value : 99;
+      }
+    }
+
+    // Gitterindizes (auch gebrochene, wie sie d3.contours liefert) auf Pixel abbilden.
+    // In point() ist `this` der Transform-Kontext von d3, daher xScale/yScale vorher binden.
+    const xScale = this.xScale;
+    const yScale = this.yScale;
+    const toPixel = d3.geoTransform({
+      point(i, j) {
+        this.stream.point(xScale(xAt(i)), yScale(tAt(j)));
+      },
+    });
+    const geoPath = d3.geoPath(toPixel);
+    const contours = d3.contours().size([PMV_GRID_NX, PMV_GRID_NY]);
+
+    for (const category of PMV_CATEGORIES) {
+      const [outer, inner] = contours.thresholds([-category.limit, category.limit])(values);
+      const d = (geoPath(outer) ?? '') + (geoPath(inner) ?? '');
+      if (!d) continue;
+
+      this.pmvGroup.append('path')
+        .attr('d', d)
+        .attr('fill-rule', 'evenodd')
+        .attr('fill', category.fill)
+        .attr('stroke', PMV_COLOR)
+        .attr('stroke-width', 0.6)
+        .attr('stroke-opacity', 0.55);
+    }
+
+    this.drawPmvLabel(pmvAt);
+  }
+
+  // Beschriftung am Neutralpunkt (PMV = 0) mit den zugrunde liegenden Parametern,
+  // weil die Zonen ohne diese Angaben nicht interpretierbar sind
+  drawPmvLabel(pmvAt) {
+    const { tMin, tMax, xMax, pmvParams } = this.config;
+    // Anker im linken Drittel: dort ist das Diagramm meist leer, während sich
+    // Prozesspunkte und das Leusden/Freymark-Feld in der Mitte häufen
+    const xAnchor = xMax * 0.16;
+
+    // Bisektion auf PMV = 0; PMV steigt monoton mit T
+    const f = T => pmvAt(T, xAnchor);
+    let lo = tMin;
+    let hi = tMax;
+    if (!(f(lo) < 0 && f(hi) > 0)) return;
+    for (let k = 0; k < 40; k++) {
+      const mid = (lo + hi) / 2;
+      if (f(mid) < 0) lo = mid; else hi = mid;
+    }
+
+    const px = this.xScale(xAnchor);
+    const py = this.yScale((lo + hi) / 2);
+    const { clo, met, vel, tr } = pmvParams;
+    // Dezimalkomma; clo/met immer mit einer Nachkommastelle („1,0 clo" statt „1 clo")
+    const fixed = v => v.toFixed(1).replace('.', ',');
+    const trim = v => String(v).replace('.', ',');
+
+    // Beschriftung liegt über Liniennetz und Bandfüllung: heller Umriss als Kontrast
+    const label = (dy, size, italic, text) => this.pmvGroup.append('text')
+      .attr('x', px)
+      .attr('y', py + dy)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', size)
+      .attr('font-style', italic ? 'italic' : 'normal')
+      .attr('fill', PMV_COLOR)
+      .attr('stroke', '#ffffff')
+      .attr('stroke-width', 2.5)
+      .attr('stroke-opacity', 0.75)
+      .attr('paint-order', 'stroke')
+      .text(text);
+
+    label(-4, '10px', true, 'Behaglichkeit EN ISO 7730 (Kat. I–III)');
+    label(
+      8, '8px', false,
+      `${fixed(clo)} clo · ${fixed(met)} met · ${trim(vel)} m/s · `
+      + `t_r ${tr === null ? '= T' : `${trim(tr)} °C`}`,
+    );
+  }
+
+  setShowPmv(visible) {
+    this.config.showPmv = visible;
+    this.drawPmvZones();
+  }
+
+  setPmvParams(params) {
+    this.config.pmvParams = { ...params };
+    this.drawPmvZones();
   }
 
   setShowComfort(visible) {
