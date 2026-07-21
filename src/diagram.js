@@ -391,8 +391,10 @@ export class HXDiagram {
     label(-4, '10px', true, 'Behaglichkeit EN ISO 7730 (Kat. I–III)');
     label(
       8, '8px', false,
+      // „T-Achse" statt „T": t_r folgt sonst missverständlich der Temperatur
+      // eines Zustandspunktes statt der Y-Achse des Diagramms
       `${fixed(clo)} clo · ${fixed(met)} met · ${trim(vel)} m/s · `
-      + `t_r ${tr === null ? '= T' : `${trim(tr)} °C`}`,
+      + `t_r ${tr === null ? '= T-Achse' : `= ${trim(tr)} °C`}`,
     );
   }
 

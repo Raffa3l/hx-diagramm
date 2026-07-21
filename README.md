@@ -137,9 +137,23 @@ Ein Band |PMV| ≤ Grenzwert entsteht aus den beiden Konturen −Grenzwert und +
 | Bekleidung | 0,5 clo | leichte Sommerbekleidung; 1,0 clo entspricht Winterbekleidung |
 | Aktivität | 1,2 met | sitzende, entspannte Tätigkeit |
 | Luftgeschwindigkeit | 0,1 m/s | relative Luftgeschwindigkeit (ruhende Luft) |
-| t_r | = T | mittlere Strahlungstemperatur; leer bedeutet t_r = Lufttemperatur |
+| t_r | = T-Achse | mittlere Strahlungstemperatur; leer bedeutet: t_r folgt der Lufttemperatur der Y-Achse (siehe unten) |
 
 Weil das Ergebnis vollständig von diesen vier Grössen abhängt, werden sie direkt im Diagramm unter der Zonenbeschriftung mitgeführt.
+
+**Wichtig zum Verständnis:** Die PMV-Zonen werden für **jeden Punkt des Diagramms** berechnet, nicht für einen gesetzten Zustandspunkt. Zustandspunkte gehen in die Berechnung nicht ein — löscht man sie, bleiben die Zonen unverändert.
+
+Deshalb bedeutet ein leeres t_r-Feld *nicht* „t_r = Temperatur meines Punktes", sondern: t_r folgt der Y-Achse und wird für jede Diagrammzeile neu gesetzt (Zeile 16 °C → t_r = 16 °C, Zeile 30 °C → t_r = 30 °C). Ein fester Wert von z. B. 20 °C gilt dagegen im ganzen Diagramm. Beide Einstellungen stimmen deshalb nur in der einen Zeile T = 20 °C überein — und dort liegt in der Regel gerade keine Zonengrenze:
+
+| Zeile T | leer: t_r / PMV | t_r = 20 °C: t_r / PMV |
+|---|---|---|
+| 20 °C | 20 °C / −0,46 | 20 °C / −0,46 ← nur hier gleich |
+| 24 °C | 24 °C / +0,38 | 20 °C / −0,05 |
+| 30 °C | 30 °C / +1,64 | 20 °C / +0,47 |
+
+(clo 2, met 0,8, v 0 m/s, x = 7,71 g/kg)
+
+Ein fest vorgegebenes t_r **verbreitert** das Band zusätzlich: Bei t_r = T ändern sich Luft- und Strahlungstemperatur pro Achsenschritt gemeinsam, bei festem t_r nur die Luft — die Empfindlichkeit dPMV/dT halbiert sich, das Band wird rund doppelt so breit (Kategorie II im Beispiel: 4,8 K statt 10,6 K). Bei v = 0 m/s ist der Faktor mit 2,2 sogar etwas grösser, weil ohne erzwungene Konvektion der Strahlungsanteil überwiegt.
 
 **Zur Strahlungstemperatur:** t_r geht etwa gleich stark in den PMV ein wie die Lufttemperatur — das ist der Operativtemperatur-Effekt (t_op ≈ (t_a + t_r)/2). Gemessen an der Implementierung beträgt die Verschiebung der Neutraltemperatur **1,01 K je K**: Bei t_r = 20 °C liegt sie bei 30,6 °C, bei t_r = 25 °C bei 25,5 °C, bei t_r = 30 °C bei 20,9 °C. Ein niedrig eingestelltes t_r schiebt die Zonen also weit nach oben; bei t_r = 2 °C läge die Neutraltemperatur bereits bei 44,3 °C. Das ist physikalisch korrekt, sieht aber nach einem Fehler aus — die Eingabe ist deshalb um 400 ms entprellt, damit Zwischenstände beim Tippen (die „2" auf dem Weg zu „20") nicht gerendert werden.
 
