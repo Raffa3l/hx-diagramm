@@ -61,20 +61,52 @@ body {
   margin-bottom: 12px;
 }
 
+/* Panels sind <details>: die Überschrift klappt den Inhalt auf und zu
+   (Muster wie die Parametergruppen auf rsim.logicc.ch) */
 .panel {
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  padding: 14px;
   margin-bottom: 8px;
 }
 
-.panel h2 {
+/* Eigener Marker statt des nativen Dreiecks: das native ragt bei
+   list-style-position über den Rahmen der Box hinaus */
+.panel > summary {
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
   font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
   color: var(--color-text-muted);
-  margin-bottom: 10px;
+}
+
+.panel > summary::-webkit-details-marker {
+  display: none;
+}
+
+.panel > summary::before {
+  content: '▸';
+  flex: none;
+  font-size: 0.7rem;
+  line-height: 1;
+  transition: transform 0.15s;
+}
+
+.panel[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.panel > summary:hover {
+  color: var(--color-primary);
+}
+
+.panel-body {
+  padding: 0 14px 14px;
 }
 
 .form-group {
@@ -134,51 +166,6 @@ body {
 .form-row .form-group input,
 .form-row .form-group select {
   margin-top: auto;
-}
-
-/* Aufklappbare Untergruppe innerhalb eines Panels (z.B. PMV-Parameter),
-   hält selten genutzte Eingaben aus dem Standard-Layout heraus */
-.subpanel {
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  padding: 6px 8px;
-  margin-bottom: 10px;
-}
-
-/* Eigener Marker statt des nativen Dreiecks: das native ragt bei
-   list-style-position über den Rahmen der Box hinaus */
-.subpanel summary {
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  list-style: none;
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-}
-
-.subpanel summary::-webkit-details-marker {
-  display: none;
-}
-
-.subpanel summary::before {
-  content: '▸';
-  flex: none;
-  font-size: 0.7rem;
-  line-height: 1;
-}
-
-.subpanel[open] summary::before {
-  content: '▾';
-}
-
-.subpanel summary:hover {
-  color: var(--color-primary);
-}
-
-.subpanel[open] summary {
-  margin-bottom: 8px;
 }
 
 .hint {
@@ -318,6 +305,18 @@ body {
 
 .power-total {
   border-color: var(--color-primary);
+}
+
+/* Gesamtbilanz: je Zeile eine Summe mit rechtsbündigem Wert – die vier
+   Bezeichnungen sind zu lang für das zweispaltige Raster der Abschnittskarten */
+.power-total .power-values {
+  grid-template-columns: 1fr auto;
+  gap: 3px 8px;
+}
+
+.power-total .power-sum-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .tooltip {

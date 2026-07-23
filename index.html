@@ -21,55 +21,56 @@
       <h1>h,x-Diagramm</h1>
       <p class="subtitle">Mollier-Diagramm für feuchte Luft</p>
 
-      <section class="panel">
-        <h2>Konfiguration</h2>
-        <div class="form-group">
-          <label for="altitude">Höhe ü. M. (m)</label>
-          <input type="number" id="altitude" value="500" min="0" max="4000" step="50">
-          <span class="hint" id="pressure-display">≈ 955 mbar</span>
-        </div>
-        <div class="form-row">
+      <details class="panel" open>
+        <summary>Konfiguration</summary>
+        <div class="panel-body">
           <div class="form-group">
-            <label for="t-min">T min (°C)</label>
-            <input type="number" id="t-min" value="-10" min="-40" max="0" step="5">
+            <label for="altitude">Höhe ü. M. (m)</label>
+            <input type="number" id="altitude" value="500" min="0" max="4000" step="50">
+            <span class="hint" id="pressure-display">≈ 955 mbar</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="t-min">T min (°C)</label>
+              <input type="number" id="t-min" value="-10" min="-40" max="0" step="5">
+            </div>
+            <div class="form-group">
+              <label for="t-max">T max (°C)</label>
+              <input type="number" id="t-max" value="50" min="20" max="80" step="5">
+            </div>
           </div>
           <div class="form-group">
-            <label for="t-max">T max (°C)</label>
-            <input type="number" id="t-max" value="50" min="20" max="80" step="5">
+            <label for="x-max">x max (g/kg)</label>
+            <input type="number" id="x-max" value="30" min="10" max="50" step="5">
           </div>
+          <button id="btn-update-config" class="btn btn-primary">Diagramm aktualisieren</button>
+          <span class="hint hint-error hidden" id="config-hint"></span>
         </div>
-        <div class="form-group">
-          <label for="x-max">x max (g/kg)</label>
-          <input type="number" id="x-max" value="30" min="10" max="50" step="5">
-        </div>
-        <button id="btn-update-config" class="btn btn-primary">Diagramm aktualisieren</button>
-        <span class="hint hint-error hidden" id="config-hint"></span>
-      </section>
+      </details>
 
-      <section class="panel">
-        <h2>Behaglichkeit</h2>
-        <div class="form-group form-check">
-          <label for="show-comfort">
-            <input type="checkbox" id="show-comfort">
-            Behaglichkeitszonen anzeigen
-          </label>
-          <span class="hint hint-indent">Leusden/Freymark-Feld (historisch, 1951)</span>
-        </div>
-        <div class="form-group form-check">
-          <label for="show-sultriness">
-            <input type="checkbox" id="show-sultriness">
-            Schwülegrenze anzeigen
-          </label>
-          <span class="hint hint-indent">x = 11,5 g/kg nach BAuA, ASR A3.5</span>
-        </div>
-        <details class="subpanel">
-          <summary>Behaglichkeit nach EN ISO 7730 (PMV)</summary>
+      <details class="panel" open>
+        <summary>Behaglichkeit</summary>
+        <div class="panel-body">
+          <div class="form-group form-check">
+            <label for="show-comfort">
+              <input type="checkbox" id="show-comfort">
+              Behaglichkeitszonen anzeigen
+            </label>
+            <span class="hint hint-indent">Leusden/Freymark-Feld (historisch, 1951)</span>
+          </div>
+          <div class="form-group form-check">
+            <label for="show-sultriness">
+              <input type="checkbox" id="show-sultriness">
+              Schwülegrenze anzeigen
+            </label>
+            <span class="hint hint-indent">x = 11,5 g/kg nach BAuA, ASR A3.5</span>
+          </div>
           <div class="form-group form-check">
             <label for="show-pmv">
               <input type="checkbox" id="show-pmv">
               PMV-Kategorien anzeigen
             </label>
-            <span class="hint hint-indent">Kategorien nach SN EN 16798-1: I |PMV| ≤ 0,2 · II ≤ 0,5 · III ≤ 0,7</span>
+            <span class="hint hint-indent">EN ISO 7730, Kategorien nach SN EN 16798-1: I |PMV| ≤ 0,2 · II ≤ 0,5 · III ≤ 0,7</span>
           </div>
           <div class="form-row">
             <div class="form-group">
@@ -87,67 +88,73 @@
               <input type="number" id="pmv-vel" value="0.1" min="0" max="1" step="0.05">
             </div>
             <div class="form-group">
-              <label for="pmv-tr">t<sub>r</sub> (°C)</label>
+              <label for="pmv-tr">Strahlungstemp. t<sub>r</sub> (°C)</label>
               <input type="number" id="pmv-tr" placeholder="= T-Achse" min="-40" max="80" step="0.5">
             </div>
           </div>
           <span class="hint">Leeres t<sub>r</sub>: Die Strahlungstemperatur folgt der Lufttemperatur der Y-Achse und wird für jede Diagrammzeile neu gesetzt – nicht die Temperatur eines Zustandspunktes. Ein fester Wert gilt dagegen im ganzen Diagramm und wirkt etwa 1:1 wie die Lufttemperatur (Operativtemperatur).</span>
-        </details>
-      </section>
+        </div>
+      </details>
 
-      <section class="panel">
-        <h2>Zustandspunkt hinzufügen</h2>
-        <div class="form-group">
-          <label for="input-t">Temperatur T (°C)</label>
-          <input type="number" id="input-t" value="20" step="0.5">
-        </div>
-        <div class="form-group">
-          <label for="input-mode">Eingabe über</label>
-          <select id="input-mode">
-            <option value="phi">Relative Feuchte φ (%)</option>
-            <option value="x">Absolute Feuchte x (g/kg)</option>
-          </select>
-        </div>
-        <div class="form-group" id="phi-input-group">
-          <label for="input-phi">Relative Feuchte φ (%)</label>
-          <input type="number" id="input-phi" value="50" min="0" max="100" step="1">
-        </div>
-        <div class="form-group hidden" id="x-input-group">
-          <label for="input-x">Absolute Feuchte x (g/kg)</label>
-          <input type="number" id="input-x" value="7" min="0" step="0.1">
-        </div>
-        <button id="btn-add-point" class="btn btn-primary">Punkt hinzufügen</button>
-        <span class="hint hint-error hidden" id="add-point-hint"></span>
-      </section>
-
-      <section class="panel">
-        <h2>Luftstrom &amp; Leistung</h2>
-        <div class="form-group">
-          <label for="flow-type">Angabe als</label>
-          <select id="flow-type">
-            <option value="mass">Massenstrom ṁ</option>
-            <option value="volume">Volumenstrom V̇</option>
-          </select>
-        </div>
-        <div class="form-row">
+      <details class="panel" open>
+        <summary>Zustandspunkt hinzufügen</summary>
+        <div class="panel-body">
           <div class="form-group">
-            <label for="flow-value">Wert</label>
-            <input type="number" id="flow-value" min="0" step="any" placeholder="z.B. 3600">
+            <label for="input-t">Temperatur T (°C)</label>
+            <input type="number" id="input-t" value="20" step="0.5">
           </div>
           <div class="form-group">
-            <label for="flow-unit">Einheit</label>
-            <select id="flow-unit"></select>
+            <label for="input-mode">Eingabe über</label>
+            <select id="input-mode">
+              <option value="phi">Relative Feuchte φ (%)</option>
+              <option value="x">Absolute Feuchte x (g/kg)</option>
+            </select>
           </div>
+          <div class="form-group" id="phi-input-group">
+            <label for="input-phi">Relative Feuchte φ (%)</label>
+            <input type="number" id="input-phi" value="50" min="0" max="100" step="1">
+          </div>
+          <div class="form-group hidden" id="x-input-group">
+            <label for="input-x">Absolute Feuchte x (g/kg)</label>
+            <input type="number" id="input-x" value="7" min="0" step="0.1">
+          </div>
+          <button id="btn-add-point" class="btn btn-primary">Punkt hinzufügen</button>
+          <span class="hint hint-error hidden" id="add-point-hint"></span>
         </div>
-        <span class="hint">ṁ bezogen auf trockene Luft; V̇ wird mit ρ und x am Abschnittsanfang umgerechnet.</span>
-        <div id="power-results"></div>
-      </section>
+      </details>
 
-      <section class="panel">
-        <h2>Zustandspunkte</h2>
-        <div id="points-list"></div>
-        <button id="btn-clear-points" class="btn btn-danger">Alle löschen</button>
-      </section>
+      <details class="panel" open>
+        <summary>Luftstrom &amp; Leistung</summary>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="flow-type">Angabe als</label>
+            <select id="flow-type">
+              <option value="mass">Massenstrom ṁ</option>
+              <option value="volume">Volumenstrom V̇</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="flow-value">Wert</label>
+              <input type="number" id="flow-value" min="0" step="any" placeholder="z.B. 3600">
+            </div>
+            <div class="form-group">
+              <label for="flow-unit">Einheit</label>
+              <select id="flow-unit"></select>
+            </div>
+          </div>
+          <span class="hint">ṁ bezogen auf trockene Luft; V̇ wird mit ρ und x am Abschnittsanfang umgerechnet.</span>
+          <div id="power-results"></div>
+        </div>
+      </details>
+
+      <details class="panel" open>
+        <summary>Zustandspunkte</summary>
+        <div class="panel-body">
+          <div id="points-list"></div>
+          <button id="btn-clear-points" class="btn btn-danger">Alle löschen</button>
+        </div>
+      </details>
 
       <footer id="app-footer">
         <span>Entwickelt von Raffa3l</span>

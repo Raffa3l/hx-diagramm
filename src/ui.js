@@ -328,17 +328,27 @@ export function setupUI(diagram) {
       powerResults.appendChild(card);
     }
 
-    // Gesamtbilanz über die ganze Prozesskette
+    // Gesamtbilanz über die ganze Prozesskette. Bewusst nach Wirkrichtung
+    // getrennt statt saldiert: Heizen und Kühlen bzw. Be- und Entfeuchten
+    // heben sich in einer Anlage nicht auf, sondern brauchen je eigene
+    // Erzeuger – die Summe der Beträge ist die auslegungsrelevante Grösse.
     if (segments.length > 1) {
-      const totalQ = segments.reduce((sum, s) => sum + s.Q, 0);
-      const totalW = segments.reduce((sum, s) => sum + s.waterFlow, 0);
+      const sumOver = (select) => segments.reduce((sum, s) => sum + Math.max(0, select(s)), 0);
+      const totals = [
+        ['Σ Heizleistung', sumOver(s => s.Q), 'kW'],
+        ['Σ Kühlleistung', sumOver(s => -s.Q), 'kW'],
+        ['Σ Befeuchtung', sumOver(s => s.waterFlow), 'kg/h'],
+        ['Σ Entfeuchtung', sumOver(s => -s.waterFlow), 'kg/h'],
+      ];
       const card = document.createElement('div');
       card.className = 'power-card power-total';
       card.innerHTML = `
         <div class="power-label">Gesamt ${points[0].label} → ${points[points.length - 1].label}</div>
         <div class="power-values">
-          <span>ΣQ = ${totalQ.toFixed(2)} kW</span>
-          <span>ΣWasser = ${totalW.toFixed(2)} kg/h</span>
+          ${totals.map(([label, value, unit]) => `
+            <span>${label}</span>
+            <span class="power-sum-value">${value.toFixed(2)} ${unit}</span>
+          `).join('')}
         </div>
       `;
       powerResults.appendChild(card);
