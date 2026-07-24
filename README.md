@@ -14,7 +14,7 @@ Interaktive Web-App zur Darstellung eines Mollier h,x-Diagramms für feuchte Luf
 - **Interaktive Zustandspunkte:** Per Klick setzen, per Drag & Drop verschieben oder numerisch eingeben; zwischen aufeinanderfolgenden Punkten werden Prozesslinien gezeichnet
 - **Vollständige Zustandsberechnung:** Temperatur, relative und absolute Feuchte, Enthalpie, Taupunkt und Dichte
 - **Leistungsberechnung:** Massen- oder Volumenstrom eingeben; die App berechnet Heiz-/Kühlleistung und Be-/Entfeuchtung je Prozessabschnitt samt Gesamtbilanz
-- **Behaglichkeits-Overlays:** Drei unabhängig zuschaltbare Darstellungen – das historische Leusden/Freymark-Feld, die Schwülegrenze bei x = 11,5 g/kg und die normbasierten PMV-Kategorien nach EN ISO 7730
+- **Behaglichkeits-Overlays:** Drei unabhängig zuschaltbare Darstellungen: das historische Leusden/Freymark-Feld, die Schwülegrenze bei x = 11,5 g/kg und die normbasierten PMV-Kategorien nach EN ISO 7730
 - **Design nach Seven-Air-Vorlage:** Monochromes Liniennetz, Helvetica-Beschriftung, alle Linien bis zum Diagrammrand
 - **Responsive:** Unterhalb 900 px Breite gestapeltes, scrollbares Layout mit dem Diagramm zuoberst; Zustandspunkte sind per Touch setz- und verschiebbar
 
@@ -44,7 +44,7 @@ Alle Eingaben liegen in der Seitenleiste in fünf einklappbaren Panels; ein Klic
 | T max | 50 °C | obere Grenze der Temperaturachse |
 | x max | 30 g/kg | obere Grenze der absoluten Feuchte |
 
-Die Höhe über Meer beeinflusst den Luftdruck und damit alle psychrometrischen Berechnungen – Sättigungslinie, Enthalpie und Taupunkt verschieben sich mit. Änderungen in diesem Panel wirken erst nach „Diagramm aktualisieren".
+Die Höhe über Meer beeinflusst den Luftdruck und damit alle psychrometrischen Berechnungen: Sättigungslinie, Enthalpie und Taupunkt verschieben sich mit. Änderungen in diesem Panel wirken erst nach „Diagramm aktualisieren".
 
 ### Zustandspunkte
 
@@ -59,7 +59,7 @@ Eingegeben wird ein Massenstrom (kg/s, kg/h) oder ein Volumenstrom (m³/s, m³/h
 | Heiz-/Kühlleistung | `Q = ṁ · Δh` | kW |
 | Be-/Entfeuchtungsleistung | `ṁ_W = ṁ · Δx` | kg/h |
 
-Ab drei Punkten kommt die Gesamtbilanz über die ganze Prozesskette hinzu, aufgeteilt in vier Summen: **Heizleistung**, **Kühlleistung**, **Befeuchtung** und **Entfeuchtung**. Bewusst nicht saldiert – Heizen und Kühlen bzw. Be- und Entfeuchten heben sich in einer Anlage nicht auf, sondern brauchen je eigene Erzeuger. Die Summe der Beträge je Wirkrichtung ist die auslegungsrelevante Grösse, nicht die Differenz.
+Ab drei Punkten kommt die Gesamtbilanz über die ganze Prozesskette hinzu, aufgeteilt in vier Summen: **Heizleistung**, **Kühlleistung**, **Befeuchtung** und **Entfeuchtung**. Bewusst nicht saldiert: Heizen und Kühlen bzw. Be- und Entfeuchten heben sich in einer Anlage nicht auf, sondern brauchen je eigene Erzeuger. Die Summe der Beträge je Wirkrichtung ist die auslegungsrelevante Grösse, nicht die Differenz.
 
 **Konventionen:** Der Massenstrom ṁ ist auf trockene Luft bezogen (h und x sind pro kg trockene Luft definiert). Ein eingegebener Volumenstrom wird je Abschnitt mit Dichte und Feuchte am Abschnittsanfang umgerechnet: `ṁ = V̇ · ρ / (1 + x)`.
 
@@ -82,7 +82,7 @@ Die PMV-Zonen hängen von vier Parametern ab, die direkt darunter eingestellt we
 | Luftgeschwindigkeit | 0,1 m/s | relative Luftgeschwindigkeit (ruhende Luft) |
 | Strahlungstemp. t_r | = T-Achse | leer bedeutet: t_r folgt der Lufttemperatur der Y-Achse |
 
-Weil das Ergebnis vollständig von diesen vier Grössen abhängt, werden sie im Diagramm unter der Zonenbeschriftung mitgeführt. Die Eingabe ist um 400 ms entprellt – siehe [Strahlungstemperatur t_r](#strahlungstemperatur-t_r).
+Weil das Ergebnis vollständig von diesen vier Grössen abhängt, werden sie im Diagramm unter der Zonenbeschriftung mitgeführt. Die Eingabe ist um 400 ms entprellt, siehe [Strahlungstemperatur t_r](#strahlungstemperatur-t_r).
 
 ## Fachliche Einordnung
 
@@ -99,7 +99,7 @@ Die drei Overlays beruhen auf unterschiedlich belastbaren Grundlagen. Kurz gefas
 
 > Leusden, F. v.; Freymark, H.: *Darstellung der Raumbehaglichkeit für den praktischen Gebrauch.* Gesundheits-Ingenieur 72 (1951), Heft 16, S. 271–273.
 
-Diese Originalpublikation ist nicht frei verfügbar; die **exakten Eckpunkte konnten daher nicht Ziffer für Ziffer gegen das Original verifiziert werden** – nur Form und Grössenordnung sind plausibilisiert (Wikipedia nennt für Behaglichkeit allgemein 18–24 °C / 35–75 % rF / x 5–12 g/kg, was sich mit der inneren Zone von 19–24 °C / 35–74 % rF deckt, ohne Leusden/Freymark namentlich zu nennen oder zwei Zonen zu unterscheiden).
+Diese Originalpublikation ist nicht frei verfügbar; die **exakten Eckpunkte konnten daher nicht Ziffer für Ziffer gegen das Original verifiziert werden**; nur Form und Grössenordnung sind plausibilisiert (Wikipedia nennt für Behaglichkeit allgemein 18–24 °C / 35–75 % rF / x 5–12 g/kg, was sich mit der inneren Zone von 19–24 °C / 35–74 % rF deckt, ohne Leusden/Freymark namentlich zu nennen oder zwei Zonen zu unterscheiden).
 
 ### Schwülegrenze (x = 11,5 g/kg)
 
@@ -117,15 +117,15 @@ Anders als das Leusden/Freymark-Feld sind die PMV-Zonen **keine festen Eckpunkte
 | II | \|PMV\| ≤ 0,5 | < 10 % |
 | III | \|PMV\| ≤ 0,7 | < 15 % |
 
-Das Band verläuft **nahezu waagrecht mit leichtem Gefälle nach rechts**: Bei 0,5 clo und 1,2 met liegt die Neutraltemperatur (PMV = 0) bei x = 2 g/kg um 25,7 °C und bei x = 14 g/kg um 24,3 °C – über 12 g/kg Feuchteänderung also nur rund 1,4 K. Der Feuchteeinfluss ist damit deutlich schwächer als der Temperatureinfluss. Genau darin liegt der Unterschied zur senkrechten Schwülegrenze: Blendet man beide Overlays gleichzeitig ein, kreuzen sie sich fast rechtwinklig. Das macht sichtbar, warum ein fester, temperaturunabhängiger x-Grenzwert nicht dem heutigen Normenverständnis entspricht.
+Das Band verläuft **nahezu waagrecht mit leichtem Gefälle nach rechts**: Bei 0,5 clo und 1,2 met liegt die Neutraltemperatur (PMV = 0) bei x = 2 g/kg um 25,7 °C und bei x = 14 g/kg um 24,3 °C, über 12 g/kg Feuchteänderung also nur rund 1,4 K. Der Feuchteeinfluss ist damit deutlich schwächer als der Temperatureinfluss. Genau darin liegt der Unterschied zur senkrechten Schwülegrenze: Blendet man beide Overlays gleichzeitig ein, kreuzen sie sich fast rechtwinklig. Das macht sichtbar, warum ein fester, temperaturunabhängiger x-Grenzwert nicht dem heutigen Normenverständnis entspricht.
 
 Im Nebelgebiet ist PMV nicht definiert; die Zonen werden deshalb an der Sättigungslinie abgeschnitten.
 
-**Verifikation.** Die Implementierung ist gegen die Referenzfälle aus EN ISO 7730 Tabelle D.1 geprüft (grösste Abweichung 0,007 PMV). Als unabhängige Gegenprobe dient das Nomogramm aus dem Lehrmittel [enbau-online.ch, Bauphysik – Kapitel 1.2 „Innenklima und Komfort"](https://enbau-online.ch/bauphysik/1-2-innenklima-und-komfort/):
+**Verifikation.** Die Implementierung ist gegen die Referenzfälle aus EN ISO 7730 Tabelle D.1 geprüft (grösste Abweichung 0,007 PMV). Als unabhängige Gegenprobe dient das Nomogramm aus dem Lehrmittel [enbau-online.ch, Bauphysik, Kapitel 1.2 „Innenklima und Komfort"](https://enbau-online.ch/bauphysik/1-2-innenklima-und-komfort/):
 
 ![Optimale operative Temperatur nach EN ISO 7730 in Abhängigkeit von Bekleidung und Aktivität](docs/optimale-operative-temperatur-iso7730.png)
 
-> **Abbildung:** Optimale operative Temperatur θ_o nach EN ISO 7730 in Abhängigkeit von **Aktivität** (Ordinate, in der App das Feld „Aktivität (met)") und **Bekleidung** (Abszisse, in der App das Feld „Bekleidung (clo)"); mittlere relative Luftfeuchte ca. 50 %. Die Toleranzbänder wachsen von ±1 °C links unten (leicht bekleidet, ruhig sitzend) auf ±5 °C rechts oben (warm bekleidet, schwere Arbeit) – je höher Aktivität und Bekleidung, desto breiter das behagliche Temperaturfenster.
+> **Abbildung:** Optimale operative Temperatur θ_o nach EN ISO 7730 in Abhängigkeit von **Aktivität** (Ordinate, in der App das Feld „Aktivität (met)") und **Bekleidung** (Abszisse, in der App das Feld „Bekleidung (clo)"); mittlere relative Luftfeuchte ca. 50 %. Die Toleranzbänder wachsen von ±1 °C links unten (leicht bekleidet, ruhig sitzend) auf ±5 °C rechts oben (warm bekleidet, schwere Arbeit): je höher Aktivität und Bekleidung, desto breiter das behagliche Temperaturfenster.
 >
 > *Quelle: enbau-online.ch, Bauphysik, Kap. 1.2, Abbildung 1.22 (nach EN ISO 7730), abgerufen am 23.07.2026. Bildzitat mit Quellenangabe.*
 
@@ -133,21 +133,21 @@ Die Abbildung verwendet die Formelzeichen der Norm; in der App heissen dieselben
 
 | in der Abbildung | in der App |
 |---|---|
-| Spezifische Wärmeabgabe = f(Aktivität), *M* in met bzw. W·m⁻² | **Aktivität (met)** – nur der met-Wert, nicht W·m⁻² |
-| Wärmedämmwert der Bekleidung *I*_cl in clo bzw. m²·K·W⁻¹ | **Bekleidung (clo)** – nur der clo-Wert |
+| Spezifische Wärmeabgabe = f(Aktivität), *M* in met bzw. W·m⁻² | **Aktivität (met)**: nur der met-Wert, nicht W·m⁻² |
+| Wärmedämmwert der Bekleidung *I*_cl in clo bzw. m²·K·W⁻¹ | **Bekleidung (clo)**: nur der clo-Wert |
 | θ_i Raumlufttemperatur | **T-Achse des Diagramms** |
 | θ_r mittlere Strahlungstemperatur | **Strahlungstemp. t_r (°C)**, leer = folgt der T-Achse |
 | θ_o optimale operative Temperatur | Ergebnisgrösse, keine Eingabe: die Lage der PMV-Bänder |
 
-Abgelesen auf der Höhe 1,2 met liefert das Nomogramm bei 1,0 clo die 22-°C-Isolinie und bei 0,5 clo einen Wert zwischen den Isolinien 24 °C und 26 °C. Unter derselben Bedingung (50 % rF, wie im Nomogramm unterstellt) rechnet `psy.pmv()` 21,6 °C bzw. 24,7 °C – beides innerhalb der Ablesegenauigkeit.
+Abgelesen auf der Höhe 1,2 met liefert das Nomogramm bei 1,0 clo die 22-°C-Isolinie und bei 0,5 clo einen Wert zwischen den Isolinien 24 °C und 26 °C. Unter derselben Bedingung (50 % rF, wie im Nomogramm unterstellt) rechnet `psy.pmv()` 21,6 °C bzw. 24,7 °C, beides innerhalb der Ablesegenauigkeit.
 
-Die Abbildung fasst Luft- und Strahlungstemperatur zur operativen Temperatur θ_o = (θ_i + θ_r)/2 zusammen. Die App rechnet nicht mit dieser Mittelwertnäherung, sondern mit dem vollständigen Verfahren aus Anhang D, in dem der Strahlungsaustausch über die Bekleidungsoberflächentemperatur eingeht – im Ergebnis mit praktisch demselben Gewicht (siehe unten). Und sie zeigt nur die *optimale* Temperatur (PMV = 0), während die App die Bänder darum herum darstellt.
+Die Abbildung fasst Luft- und Strahlungstemperatur zur operativen Temperatur θ_o = (θ_i + θ_r)/2 zusammen. Die App rechnet nicht mit dieser Mittelwertnäherung, sondern mit dem vollständigen Verfahren aus Anhang D, in dem der Strahlungsaustausch über die Bekleidungsoberflächentemperatur eingeht, im Ergebnis mit praktisch demselben Gewicht (siehe unten). Und sie zeigt nur die *optimale* Temperatur (PMV = 0), während die App die Bänder darum herum darstellt.
 
 #### Strahlungstemperatur t_r
 
-**Die PMV-Zonen werden für jeden Punkt des Diagramms berechnet, nicht für einen gesetzten Zustandspunkt.** Zustandspunkte gehen nicht ein – löscht man sie, bleiben die Zonen unverändert.
+**Die PMV-Zonen werden für jeden Punkt des Diagramms berechnet, nicht für einen gesetzten Zustandspunkt.** Zustandspunkte gehen nicht ein; löscht man sie, bleiben die Zonen unverändert.
 
-Ein leeres t_r-Feld bedeutet deshalb *nicht* „t_r = Temperatur meines Punktes", sondern: t_r folgt der Y-Achse und wird für jede Diagrammzeile neu gesetzt (Zeile 16 °C → t_r = 16 °C, Zeile 30 °C → t_r = 30 °C). Ein fester Wert von z. B. 20 °C gilt dagegen im ganzen Diagramm. Beide Einstellungen stimmen nur in der einen Zeile T = 20 °C überein – und dort liegt in der Regel gerade keine Zonengrenze:
+Ein leeres t_r-Feld bedeutet deshalb *nicht* „t_r = Temperatur meines Punktes", sondern: t_r folgt der Y-Achse und wird für jede Diagrammzeile neu gesetzt (Zeile 16 °C → t_r = 16 °C, Zeile 30 °C → t_r = 30 °C). Ein fester Wert von z. B. 20 °C gilt dagegen im ganzen Diagramm. Beide Einstellungen stimmen nur in der einen Zeile T = 20 °C überein, und dort liegt in der Regel gerade keine Zonengrenze:
 
 | Zeile T | leer: t_r / PMV | t_r = 20 °C: t_r / PMV |
 |---|---|---|
@@ -157,15 +157,15 @@ Ein leeres t_r-Feld bedeutet deshalb *nicht* „t_r = Temperatur meines Punktes"
 
 (clo 2, met 0,8, v 0 m/s, x = 7,71 g/kg)
 
-Ein fest vorgegebenes t_r **verbreitert** das Band zusätzlich: Bei t_r = T ändern sich Luft- und Strahlungstemperatur pro Achsenschritt gemeinsam, bei festem t_r nur die Luft – die Empfindlichkeit dPMV/dT halbiert sich, das Band wird rund doppelt so breit. Im Beispiel oben misst Kategorie II 4,8 K bei gekoppeltem t_r und 10,6 K bei festem, also Faktor 2,2; bei v = 0,1 m/s statt 0 sind es 9,6 K und damit Faktor 2,0 – ohne erzwungene Konvektion überwiegt der Strahlungsanteil etwas stärker.
+Ein fest vorgegebenes t_r **verbreitert** das Band zusätzlich: Bei t_r = T ändern sich Luft- und Strahlungstemperatur pro Achsenschritt gemeinsam, bei festem t_r nur die Luft; die Empfindlichkeit dPMV/dT halbiert sich, das Band wird rund doppelt so breit. Im Beispiel oben misst Kategorie II 4,8 K bei gekoppeltem t_r und 10,6 K bei festem, also Faktor 2,2; bei v = 0,1 m/s statt 0 sind es 9,6 K und damit Faktor 2,0; ohne erzwungene Konvektion überwiegt der Strahlungsanteil etwas stärker.
 
-t_r geht damit **etwa gleich stark in den PMV ein wie die Lufttemperatur** – das ist der Operativtemperatur-Effekt. Gemessen an der Implementierung verschiebt sich die Neutraltemperatur um rund 1 K je K t_r (0,5 clo, 1,2 met, 0,1 m/s, x = 7,71 g/kg):
+t_r geht damit **etwa gleich stark in den PMV ein wie die Lufttemperatur**: das ist der Operativtemperatur-Effekt. Gemessen an der Implementierung verschiebt sich die Neutraltemperatur um rund 1 K je K t_r (0,5 clo, 1,2 met, 0,1 m/s, x = 7,71 g/kg):
 
 | t_r | 2 °C | 20 °C | 25 °C | 30 °C |
 |---|---|---|---|---|
 | Neutraltemperatur | 43,9 °C | 30,2 °C | 25,1 °C | 20,6 °C |
 
-Ein niedrig eingestelltes t_r schiebt die Zonen also weit nach oben. Das ist physikalisch korrekt, sieht aber nach einem Fehler aus – die Eingabe ist deshalb um 400 ms entprellt, damit Zwischenstände beim Tippen (die „2" auf dem Weg zu „20") nicht gerendert werden.
+Ein niedrig eingestelltes t_r schiebt die Zonen also weit nach oben. Das ist physikalisch korrekt, sieht aber nach einem Fehler aus; die Eingabe ist deshalb um 400 ms entprellt, damit Zwischenstände beim Tippen (die „2" auf dem Weg zu „20") nicht gerendert werden.
 
 ## Physikalische Grundlagen
 
@@ -186,9 +186,9 @@ Formeln und Konstanten nach VDI 4670 Blatt 1 bzw. ASHRAE Fundamentals; Sättigun
 ## Technik & Quellen
 
 - [Vite](https://vitejs.dev/) als Build-Tool und Entwicklungsserver, [D3.js](https://d3js.org/) v7 für SVG-Rendering und Interaktion, sonst Vanilla JavaScript (ES Modules) ohne Framework
-- Visuelles Layout orientiert sich am h,x-Diagramm der [Seven-Air Gebr. Meyer AG](https://www.seven-air.ch/resources/h-x-Diagramm-540.pdf)
+- Visuelles Layout orientiert sich am h,x-Diagramm der [Seven-Air Gebr. Meyer AG](https://www.seven-air.ch/resources/h-x-Diagramm-540.pdf); die zugrunde gelegte Vorlage liegt als [PDF-Kopie](docs/h-x-diagramm-7air-vorlage.pdf) in `docs/`
 - Psychrometrische Referenz: [d3-mollierhx](https://github.com/hslu-ige-laes/d3-mollierhx) (HSLU)
-- Einordnung von Behaglichkeit und Innenklima: [enbau-online.ch, Bauphysik – Kap. 1.2](https://enbau-online.ch/bauphysik/1-2-innenklima-und-komfort/); von dort stammt auch die als Bildzitat wiedergegebene Abbildung 1.22 in `docs/`
+- Einordnung von Behaglichkeit und Innenklima: [enbau-online.ch, Bauphysik, Kap. 1.2](https://enbau-online.ch/bauphysik/1-2-innenklima-und-komfort/); von dort stammt auch die als Bildzitat wiedergegebene Abbildung 1.22 in `docs/`
 
 ## Lizenz
 

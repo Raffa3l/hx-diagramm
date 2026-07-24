@@ -329,7 +329,7 @@ export function setupUI(diagram) {
     // Gesamtbilanz über die ganze Prozesskette. Bewusst nach Wirkrichtung
     // getrennt statt saldiert: Heizen und Kühlen bzw. Be- und Entfeuchten
     // heben sich in einer Anlage nicht auf, sondern brauchen je eigene
-    // Erzeuger – die Summe der Beträge ist die auslegungsrelevante Grösse.
+    // Erzeuger; die Summe der Beträge ist die auslegungsrelevante Grösse.
     if (segments.length > 1) {
       const sumOver = (select) => segments.reduce((sum, s) => sum + Math.max(0, select(s)), 0);
       const totals = [

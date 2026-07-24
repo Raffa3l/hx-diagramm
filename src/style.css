@@ -307,7 +307,7 @@ body {
   border-color: var(--color-primary);
 }
 
-/* Gesamtbilanz: je Zeile eine Summe mit rechtsbündigem Wert – die vier
+/* Gesamtbilanz: je Zeile eine Summe mit rechtsbündigem Wert; die vier
    Bezeichnungen sind zu lang für das zweispaltige Raster der Abschnittskarten */
 .power-total .power-values {
   grid-template-columns: 1fr auto;

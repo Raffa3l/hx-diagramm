@@ -43,14 +43,14 @@ const COMFORT_ZONES = [
 
 // Schwülegrenze nach BAuA/ASR A3.5 (nicht aus Leusden/Freymark): rechts von
 // x = 11.5 g/kg wird die Luft als schwül empfunden (senkrechte Linie im h,x-Diagramm).
-// Vereinfachendes Konzept – SN EN 16798-1/SIA 382.711 kennt keine feste Grenze
+// Vereinfachendes Konzept: SN EN 16798-1/SIA 382.711 kennt keine feste Grenze
 // (siehe README „Quellenlage").
 const SULTRINESS_LIMIT_X = 11.5; // g/kg
 const SULTRINESS_COLOR = '#c2410c';
 
 // Behaglichkeitskategorien nach EN ISO 7730 / SN EN 16798-1, über den PMV definiert.
 // Anders als das Leusden/Freymark-Feld sind das keine festen Eckpunkte, sondern
-// Höhenlinien des PMV-Felds über (T, x) – sie verschieben sich mit clo, met, v und t_r.
+// Höhenlinien des PMV-Felds über (T, x); sie verschieben sich mit clo, met, v und t_r.
 // Farbe bewusst Petrol (UI-Akzent): unterscheidet die normbasierten Zonen optisch
 // vom historischen (orange/gelbgrünen) Behaglichkeitsfeld.
 const PMV_CATEGORIES = [
@@ -311,7 +311,7 @@ export class HXDiagram {
     const tAt = j => tMin + (j / (PMV_GRID_NY - 1)) * (tMax - tMin);
 
     // PMV bei (T, x); im Nebelgebiet wird pa auf den Sättigungsdruck begrenzt,
-    // damit die Iteration endliche Werte liefert – dieser Bereich wird weggeclippt.
+    // damit die Iteration endliche Werte liefert; dieser Bereich wird weggeclippt.
     const pmvAt = (T, x_gkg) => {
       const pa = Math.min(psy.partialPressure(x_gkg / 1000, pressure), psy.saturationPressure(T));
       return psy.pmv(T, tr === null ? T : tr, vel, pa, clo, met);
