@@ -126,13 +126,7 @@ export function setupUI(diagram) {
   function getConfig(messages = [], writeBack = false) {
     const altitude = readClamped(altitudeInput, 500, 'Höhe ü. M.', 'm', messages, writeBack);
     const tMin = readClamped(tMinInput, -10, 'T min', '°C', messages, writeBack);
-    let tMax = readClamped(tMaxInput, 50, 'T max', '°C', messages, writeBack);
-    // Durch die Attributgrenzen (tMin ≤ 0 < 20 ≤ tMax) nicht mehr erreichbar; Absicherung
-    if (tMax <= tMin) {
-      tMax = tMin + 10;
-      messages.push(`T max muss über T min liegen; auf ${tMax} °C gesetzt.`);
-      if (writeBack) tMaxInput.value = tMax;
-    }
+    const tMax = readClamped(tMaxInput, 50, 'T max', '°C', messages, writeBack);
     return {
       altitude,
       pressure: pressureFromAltitude(altitude),
@@ -212,7 +206,11 @@ export function setupUI(diagram) {
       return;
     }
 
-    const config = getConfig();
+    // Gegen den tatsächlich gezeichneten Zustand rechnen und prüfen, nicht gegen die
+    // Config-Felder: die können editiert, aber noch nicht mit „Diagramm aktualisieren"
+    // angewandt sein. Sonst würde der Punkt mit anderem Druck/Bereich gespeichert
+    // (stateFromTX nutzt diagram.config.pressure) als hier berechnet und geprüft.
+    const { pressure, tMin, tMax, xMax } = diagram.config;
     let x_gkg;
 
     if (inputMode.value === 'phi') {
@@ -221,7 +219,7 @@ export function setupUI(diagram) {
         showAddPointHint('φ muss zwischen 0 und 100 % liegen.');
         return;
       }
-      x_gkg = humidityRatio(T, phi, config.pressure) * 1000;
+      x_gkg = humidityRatio(T, phi, pressure) * 1000;
       if (!Number.isFinite(x_gkg)) {
         showAddPointHint('Bei dieser Temperatur ergibt die φ-Eingabe keine gültige Feuchte.');
         return;
@@ -236,9 +234,9 @@ export function setupUI(diagram) {
 
     // Nur Punkte im dargestellten Bereich zulassen: geclippte (unsichtbare) Punkte
     // flossen sonst kommentarlos in Prozesslinie und Leistungsberechnung ein
-    if (T < config.tMin || T > config.tMax || x_gkg > config.xMax) {
+    if (T < tMin || T > tMax || x_gkg > xMax) {
       showAddPointHint(
-        `Punkt liegt ausserhalb des Diagramms (T ${config.tMin} bis ${config.tMax} °C, x bis ${config.xMax} g/kg).`,
+        `Punkt liegt ausserhalb des Diagramms (T ${tMin} bis ${tMax} °C, x bis ${xMax} g/kg).`,
       );
       return;
     }

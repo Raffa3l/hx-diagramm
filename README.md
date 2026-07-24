@@ -88,14 +88,12 @@ Weil das Ergebnis vollständig von diesen vier Grössen abhängt, werden sie im 
 
 Die drei Overlays beruhen auf unterschiedlich belastbaren Grundlagen. Kurz gefasst: Leusden/Freymark und die Schwülegrenze sind **historische bzw. vereinfachende Orientierungskonzepte**, die PMV-Kategorien sind **normbasiert**. Keines der Overlays ersetzt einen normkonformen Behaglichkeitsnachweis.
 
-### Leusden/Freymark-Feld und Schwülegrenze
+### Leusden/Freymark-Feld
 
 | Zone | Darstellung | Eckpunkte (T in °C / φ in %) |
 |---|---|---|
 | behaglich | gelbgrün, 40 % Deckkraft | (19/38), (17.5/74), (22.5/65), (24/35) |
 | noch behaglich | orange, 25 % Deckkraft | (20/20), (17/40), (16/75), (17/85), (21.5/80), (25/60), (27/30), (25.5/20) |
-
-Die **Schwülegrenze** bei x = 11,5 g/kg wird als senkrechte, gestrichelte Linie gezeichnet; rechts davon wird die Luft als schwül empfunden. Sie gilt nur für ungesättigte Luft und endet unten an der Sättigungslinie, also am druckabhängigen Taupunkt von 11,5 g/kg (bei 955 mbar ≈ 15,3 °C); darunter beginnt das Nebelgebiet. Bei x max < 11,5 g/kg liegt sie ausserhalb und wird nicht gezeichnet.
 
 **Quellenlage.** Die Zonen-Eckpunkte stammen aus der [HSLU-edar-Referenz `comfortTempHum.Rmd`](https://github.com/hslu-ige-laes/edar/blob/master/partDataVis/comfortTempHum.Rmd) (dort in einem T/φ-Plot; die Kanten werden hier linear in (T, φ) abgetastet und über φ→x ins h,x-System transformiert, wodurch die Zonenform druckabhängig wird). Form, Zweiteilung und Terminologie entsprechen erkennbar dem historisch etablierten Leusden/Freymark-Feld:
 
@@ -103,7 +101,11 @@ Die **Schwülegrenze** bei x = 11,5 g/kg wird als senkrechte, gestrichelte Linie
 
 Diese Originalpublikation ist nicht frei verfügbar; die **exakten Eckpunkte konnten daher nicht Ziffer für Ziffer gegen das Original verifiziert werden** – nur Form und Grössenordnung sind plausibilisiert (Wikipedia nennt für Behaglichkeit allgemein 18–24 °C / 35–75 % rF / x 5–12 g/kg, was sich mit der inneren Zone von 19–24 °C / 35–74 % rF deckt, ohne Leusden/Freymark namentlich zu nennen oder zwei Zonen zu unterscheiden).
 
-Der feste Wert x = 11,5 g/kg stützt sich auf die deutsche Arbeitsschutzliteratur (BAuA, ASR A3.5) und ist nach Schweizer Fachnormung als vereinfachendes Konzept zu betrachten, nicht als normkonformer Referenzwert. Massgeblich sind heute EN ISO 7730 und ASHRAE 55, die methodisch grundlegend anders arbeiten (PMV/PPD nach Fanger unter Einbezug von Bekleidung, Aktivität, Luftgeschwindigkeit und Strahlungstemperatur; ASHRAE 55 zusätzlich mit adaptivem Komfortmodell). Für Schweizer Projekte unmittelbar anwendbar ist SN EN 16798-1 mit nationalem Anhang SIA 382.711, die sich für das Schwüleempfinden auf den vorausgesagten Prozentsatz der thermischen Akzeptanz (PTA) stützt und unter Berufung auf Kleber et al. (2018) explizit festhält, dass **keine feste, temperaturunabhängige Schwülegrenze existiert**. Keine dieser Normen definiert eine einfache T/x-Zone im Mollier-Diagramm.
+### Schwülegrenze (x = 11,5 g/kg)
+
+Die **Schwülegrenze** bei x = 11,5 g/kg wird als senkrechte, gestrichelte Linie gezeichnet; rechts davon wird die Luft als schwül empfunden. Sie gilt nur für ungesättigte Luft und endet unten an der Sättigungslinie, also am druckabhängigen Taupunkt von 11,5 g/kg (bei 955 mbar ≈ 15,3 °C); darunter beginnt das Nebelgebiet. Bei x max < 11,5 g/kg liegt sie ausserhalb und wird nicht gezeichnet.
+
+**Quellenlage.** Der feste Wert x = 11,5 g/kg stützt sich auf die deutsche Arbeitsschutzliteratur (BAuA, ASR A3.5) und ist nach Schweizer Fachnormung als vereinfachendes Konzept zu betrachten, nicht als normkonformer Referenzwert. Massgeblich sind heute EN ISO 7730 und ASHRAE 55, die methodisch grundlegend anders arbeiten (PMV/PPD nach Fanger unter Einbezug von Bekleidung, Aktivität, Luftgeschwindigkeit und Strahlungstemperatur; ASHRAE 55 zusätzlich mit adaptivem Komfortmodell). Für Schweizer Projekte unmittelbar anwendbar ist SN EN 16798-1 mit nationalem Anhang SIA 382.711, die sich für das Schwüleempfinden auf den vorausgesagten Prozentsatz der thermischen Akzeptanz (PTA) stützt und unter Berufung auf Kleber et al. (2018) explizit festhält, dass **keine feste, temperaturunabhängige Schwülegrenze existiert**. Keine dieser Normen definiert eine einfache T/x-Zone im Mollier-Diagramm.
 
 ### PMV nach EN ISO 7730
 
@@ -141,7 +143,7 @@ Abgelesen auf der Höhe 1,2 met liefert das Nomogramm bei 1,0 clo die 22-°C-Iso
 
 Die Abbildung fasst Luft- und Strahlungstemperatur zur operativen Temperatur θ_o = (θ_i + θ_r)/2 zusammen. Die App rechnet nicht mit dieser Mittelwertnäherung, sondern mit dem vollständigen Verfahren aus Anhang D, in dem der Strahlungsaustausch über die Bekleidungsoberflächentemperatur eingeht – im Ergebnis mit praktisch demselben Gewicht (siehe unten). Und sie zeigt nur die *optimale* Temperatur (PMV = 0), während die App die Bänder darum herum darstellt.
 
-### Strahlungstemperatur t_r
+#### Strahlungstemperatur t_r
 
 **Die PMV-Zonen werden für jeden Punkt des Diagramms berechnet, nicht für einen gesetzten Zustandspunkt.** Zustandspunkte gehen nicht ein – löscht man sie, bleiben die Zonen unverändert.
 

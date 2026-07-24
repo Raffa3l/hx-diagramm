@@ -131,6 +131,14 @@ export class HXDiagram {
 
   update(config) {
     this.config = { ...config };
+    // Punkte ausserhalb des neuen Bereichs verwerfen, dieselbe Invariante wie beim
+    // Hinzufügen (siehe ui.js): sonst blieben weggeclippte, unsichtbare Punkte in
+    // statePoints und flössen weiter in Prozesslinie und Leistungsbilanz ein.
+    const { tMin, tMax, xMax } = this.config;
+    this.statePoints = this.statePoints.filter(
+      p => p.T >= tMin && p.T <= tMax && p.x <= xMax,
+    );
+    this.relabelPoints();
     // Abgeleitete Grössen (φ, h, Taupunkt, …) hängen vom Druck ab
     this.statePoints.forEach(p => {
       Object.assign(p, psy.stateFromTX(p.T, p.x, this.config.pressure));
@@ -628,6 +636,10 @@ export class HXDiagram {
     for (let i = 0; i <= nSteps; i++) {
       const T = tMin + (i / nSteps) * (tMax - tMin);
       const x_gkg = psy.humidityRatio(T, 1.0, pressure) * 1000;
+      // Symmetrisch zu drawPhiLines: bei ps ≥ p wird x_s unendlich (aktuell durch
+      // tMax ≤ 80 °C und die Druckuntergrenze nicht erreichbar); sauber abbrechen,
+      // statt über Infinity ein falsches Horizontalsegment zu interpolieren
+      if (!Number.isFinite(x_gkg)) break;
       if (x_gkg > xMax) {
         if (prev) {
           const t = (xMax - prev[0]) / (x_gkg - prev[0]);
@@ -836,7 +848,6 @@ export class HXDiagram {
 
   renderStatePoints() {
     this.processGroup.selectAll('*').remove();
-    this.pointsGroup.selectAll('*').remove();
 
     // Prozesslinien
     if (this.statePoints.length >= 2) {
@@ -877,29 +888,6 @@ export class HXDiagram {
         d3.select(this).attr('opacity', 1);
       });
 
-    const groups = this.pointsGroup.selectAll('g.state-point')
-      .data(this.statePoints, d => d.id)
-      .join('g')
-      .attr('class', 'state-point')
-      .attr('data-id', d => d.id)
-      .attr('transform', d => `translate(${this.xScale(d.x)}, ${this.yScale(d.T)})`)
-      .style('cursor', 'grab')
-      .call(drag);
-
-    groups.append('circle')
-      .attr('r', 6)
-      .attr('fill', COLORS.point)
-      .attr('stroke', 'white')
-      .attr('stroke-width', 2);
-
-    groups.append('text')
-      .attr('x', 10)
-      .attr('y', -8)
-      .attr('font-size', '11px')
-      .attr('font-weight', '600')
-      .attr('fill', COLORS.point)
-      .text(d => d.label);
-
     // Tooltip bei Hover; Position auch beim Eintreten setzen, sonst erscheint
     // es an der letzten gespeicherten Stelle (z.B. wenn ein neuer Punkt per
     // Klick direkt unter dem Cursor entsteht und mouseenter sofort feuert)
@@ -909,24 +897,55 @@ export class HXDiagram {
         .style('top', (event.pageY - 14) + 'px');
     };
 
-    groups
-      .on('mouseenter', (event, d) => {
-        placeTooltip(event);
-        this.tooltip
-          .style('display', 'block')
-          .html(`
-            <strong>${d.label}</strong><br>
-            T = ${d.T.toFixed(1)} °C<br>
-            x = ${d.x.toFixed(2)} g/kg<br>
-            φ = ${(d.phi * 100).toFixed(1)} %<br>
-            h = ${d.h.toFixed(1)} kJ/kg<br>
-            T<sub>d</sub> = ${d.Td.toFixed(1)} °C${d.fog ? '<br><em>Nebelgebiet (übersättigt)</em>' : ''}
-          `);
+    // Keyed Data-Join über d.id: statische Teile (Kreis, Text, Drag- und
+    // Tooltip-Handler) entstehen nur beim Enter, das Update aktualisiert Position
+    // und Label in-place. Ohne diesen echten Join würde jeder Drag-Frame das
+    // komplette Punkt-DOM neu aufbauen. Die Handler lesen d live aus __data__,
+    // deshalb genügt es, sie beim Enter zu setzen.
+    this.pointsGroup.selectAll('g.state-point')
+      .data(this.statePoints, d => d.id)
+      .join(enter => {
+        const g = enter.append('g')
+          .attr('class', 'state-point')
+          .style('cursor', 'grab')
+          .call(drag)
+          .on('mouseenter', (event, d) => {
+            placeTooltip(event);
+            this.tooltip
+              .style('display', 'block')
+              .html(`
+                <strong>${d.label}</strong><br>
+                T = ${d.T.toFixed(1)} °C<br>
+                x = ${d.x.toFixed(2)} g/kg<br>
+                φ = ${(d.phi * 100).toFixed(1)} %<br>
+                h = ${d.h.toFixed(1)} kJ/kg<br>
+                T<sub>d</sub> = ${d.Td.toFixed(1)} °C${d.fog ? '<br><em>Nebelgebiet (übersättigt)</em>' : ''}
+              `);
+          })
+          .on('mousemove', placeTooltip)
+          .on('mouseleave', () => {
+            this.tooltip.style('display', 'none');
+          });
+
+        g.append('circle')
+          .attr('r', 6)
+          .attr('fill', COLORS.point)
+          .attr('stroke', 'white')
+          .attr('stroke-width', 2);
+
+        g.append('text')
+          .attr('x', 10)
+          .attr('y', -8)
+          .attr('font-size', '11px')
+          .attr('font-weight', '600')
+          .attr('fill', COLORS.point);
+
+        return g;
       })
-      .on('mousemove', placeTooltip)
-      .on('mouseleave', () => {
-        this.tooltip.style('display', 'none');
-      });
+      .attr('data-id', d => d.id)
+      .attr('transform', d => `translate(${this.xScale(d.x)}, ${this.yScale(d.T)})`)
+      .select('text')
+      .text(d => d.label);
 
     if (this.callbacks.onPointsChanged) {
       this.callbacks.onPointsChanged(this.statePoints);
